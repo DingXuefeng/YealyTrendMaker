@@ -26,7 +26,7 @@ class TrendMaker {
   public:
     virtual void set_output_path(const std::string &project,const std::string &out,bool make_tex_ = false) = 0; // optional. if set, the output result will be saved in the output path
     virtual void add_data(TrendData *data) = 0;
-    virtual void make_plots() = 0;
+    virtual void make_plots(bool skip_lowp) = 0;
     virtual ~TrendMaker() {}
 };
 struct Label {
@@ -40,7 +40,7 @@ class TrendMakerImpl : public TrendMaker {
     TrendMakerImpl(const std::string &var);
     void set_output_path(const std::string &project,const std::string &out,bool make_tex_ ) { m_project = project; m_out = out; make_tex = make_tex_; } 
     void add_data(TrendData *data) { datas.push_back(data); }
-    void make_plots();
+    void make_plots(bool skip_lowp_);
   private:
     void make_correlation(TH1 *h_corr);
     void gather_graphs();
@@ -72,5 +72,6 @@ class TrendMakerImpl : public TrendMaker {
     int Ncolums;
     int color;
     int Ncolors;
+    bool skip_lowp = true;
 };
 #endif

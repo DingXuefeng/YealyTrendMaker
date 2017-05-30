@@ -19,7 +19,7 @@ std::vector<std::string> TrendDataImpl::graph_names;
 std::vector<std::string> TrendDataImpl::graph_legend;
 std::map<std::string,double> TrendDataImpl::config_ymin;
 std::map<std::string,double> TrendDataImpl::config_ymax;
-std::map<std::string,std::string> TrendDataImpl::correlation_terms;
+std::multimap<std::string,std::string> TrendDataImpl::correlation_terms;
 TrendDataImpl::TrendDataImpl(const std::string &var) :
   m_var(var),label_vars(),file_paths(),
   varIt(label_vars.end()),fIt(file_paths.end()),
@@ -172,8 +172,17 @@ void TrendDataImpl::make_graphs() {
     auto get_index = [&] (const std::string &var) { for(int i = 0;i<graph_names.size();++i) if( graph_names.at(i)==var ) { return i; } throw std::runtime_error("cannot find ["+var+"]"); };
     TGraphErrors *gr1 = graphs.at(get_index(cor.first));
     TGraphErrors *gr2 = graphs.at(get_index(cor.second));
-    TGraphErrors *gr = new TGraphErrors(final_x.size(),gr1->GetY(),gr2->GetY(),gr1->GetEY(),gr2->GetEY());
+    TGraphErrors *gr = new TGraphErrors(final_x.size()-1,gr1->GetY(),gr2->GetY(),gr1->GetEY(),gr2->GetEY());
     correlation.push_back(gr->GetCorrelationFactor());
+    bool ok1 = false;
+    for(int i = 0;i<final_x.size();++i) {
+      if(gr1->GetY()[i]!=gr1->GetY()[0]) { ok1 = true; break; }
+    }
+    bool ok2 = false;
+    for(int i = 0;i<final_x.size();++i) {
+      if(gr2->GetY()[i]!=gr2->GetY()[0]) { ok2 = true; break; }
+    }
+    corrvar_fixed.push_back(ok1&&ok2);
   }
 }
 TGraphErrors *TrendDataImpl::next_graph(std::string &name,std::string &legend) {

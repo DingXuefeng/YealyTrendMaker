@@ -24,6 +24,7 @@ class TrendData {
     virtual std::vector<double> &get_correlations() = 0;
     virtual double xmin() const = 0;
     virtual double xmax() const = 0;
+    virtual std::vector<bool> &is_corrvar_fixed() = 0 ;
 };
 class TrendDataImpl : public TrendData {
   // the conrete implementation class
@@ -37,7 +38,8 @@ class TrendDataImpl : public TrendData {
     void addFiles(double label_var,const std::string &file_path) ;
     TGraphErrors *next_graph(std::string &name,std::string &legend);
     std::vector<double> &get_correlations() { return correlation; }
-    static std::map<std::string,std::string> &get_correlation_items() { return correlation_terms; }
+    std::vector<bool> &is_corrvar_fixed() { return corrvar_fixed; }
+    static std::multimap<std::string,std::string> &get_correlation_items() { return correlation_terms; }
     double xmin() const { return *std::min_element(label_vars.begin(),label_vars.end()); }
     double xmax() const { return *std::max_element(label_vars.begin(),label_vars.end()); }
     static std::map<std::string,double> &get_config_ymin() { return config_ymin; }
@@ -47,13 +49,14 @@ class TrendDataImpl : public TrendData {
     bool next(double &label_var,std::string &file_path) const;
     const std::string m_var;
     std::vector<double> label_vars;
+    std::vector<bool> corrvar_fixed;
     std::vector<std::string> file_paths;
     mutable std::vector<double>::const_iterator varIt;
     mutable std::vector<std::string>::const_iterator fIt;
     static std::vector<std::string> vars;
     static std::map<std::string,std::string> names;
     static std::map<std::string,int> arrays;
-    static std::map<std::string,std::string> correlation_terms;
+    static std::multimap<std::string,std::string> correlation_terms;
     std::vector<double> correlation;
     static std::map<std::string,std::vector<std::string> > array_names;
     static std::vector<std::string> graph_names;

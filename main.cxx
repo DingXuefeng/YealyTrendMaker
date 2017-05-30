@@ -12,21 +12,22 @@ int main(int argc,char *argv[]) {
   config_POI();
 
     
-  assert(argc==5);
+  assert(argc==6);
   // argv[1]: var. say, period
   // argv[2]: name of the project, affecting name of the output tex file
   // argv[3]: output folder
   // argv[4]: inputlist
+  // argv[5]: skip p-value?
   TrendMaker *maker = Factory<TrendMaker>::get()->create(argv[1]);
   maker->set_output_path(argv[2]/*name of the project*/,argv[3]/*output path*/,true/*make latex*/);
   load_data(maker,argv);
-  maker->make_plots();
+  maker->make_plots(atoi(argv[5]));
 
   return 0;
 }
 void config_POI() { // paramters of interests
   TrendDataImpl::reg("likelihood_p_value","p-val",-0.1,1.1);
-  TrendDataImpl::reg("chi2_ndf","#chi^{2} / NDF",0.5,2);
+  //TrendDataImpl::reg("chi2_ndf","#chi^{2} / NDF",0.5,2);
   TrendDataImpl::reg("beta_ly","LY (p.e./MeV)",450,600);
   TrendDataImpl::reg("nu_Be7_rate","#nu ^{7}Be (cpd/100t)",20,100);
 //  TrendDataImpl::reg("nu_pp_rate","#nu pp (cpd/100t)");
@@ -42,12 +43,16 @@ void config_POI() { // paramters of interests
   TrendDataImpl::reg("Ext_Bi214_rate","Ext ^{214}Bi (cpd/100t)",0,10);
   TrendDataImpl::reg("Ext_K40_rate","Ext ^{40}K (cpd/100t)",0,10);
   TrendDataImpl::reg("C11_quenching","^{11}C qch (cpd/100t)",0.8,1);
-  TrendDataImpl::regArray("beta_resolution","g1","g2","g3");
-  TrendDataImpl::regArray_min("beta_resolution",1,0,0);
-  TrendDataImpl::regArray_max("beta_resolution",2,6,3);
+  //TrendDataImpl::regArray("beta_resolution","g1","g2","g3");
+  //TrendDataImpl::regArray_min("beta_resolution",1,0,0);
+  //TrendDataImpl::regArray_max("beta_resolution",2,6,3);
   TrendDataImpl::regCorrelation("Kr85_rate","Bi210_rate");
+  TrendDataImpl::regCorrelation("C11_quenching","Bi210_rate");
+  TrendDataImpl::regCorrelation("Po210_quenching","Bi210_rate");
   TrendDataImpl::regCorrelation("nu_Be7_rate","Bi210_rate");
   TrendDataImpl::regCorrelation("beta_ly","Bi210_rate");
+  TrendDataImpl::regCorrelation("Kr85_rate","nu_Be7_rate");
+  TrendDataImpl::regCorrelation("C11_quenching","beta_ly");
 }
 void load_data(TrendMaker *maker,char *argv[]) {
   std::ifstream inputlists;

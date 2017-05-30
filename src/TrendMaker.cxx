@@ -21,14 +21,13 @@ TrendMakerImpl::TrendMakerImpl(const std::string &var) :
   vars(),names(),arrays(),array_names(),latexf(),Ncolums(5)
 {}
 
-void TrendMakerImpl::make_plots() {
+void TrendMakerImpl::make_plots(bool skip_lowp_) {
+  skip_lowp = skip_lowp_;
   if(m_out=="") m_out=".";
   if(!graphs.size()) gather_graphs();
   if(make_tex) latexf.open(m_out+"/trend_"+m_project+"_"+m_var+".tex");
   if(make_tex) latexf << "\\begin{frame}[plain]{"<<m_project<<"}"<<std::endl;
   if(graphs.size()>12) Ncolums = 5; else Ncolums = 4;
-  color = 0;
-  Ncolors = graphs.begin()->second.size();
   for( auto grs : graphs ) {
     make_plot(grs.first /* label */,grs.second /* vector of TGraphErrors */);
   }
@@ -38,12 +37,14 @@ void TrendMakerImpl::make_plots() {
   }
   if(make_tex) latexf << "\\end{frame}"<<std::endl;
   if(make_tex) latexf << "\\begin{frame}[plain]"<<std::endl;
-  //make_legend();
+  make_legend();
   if(make_tex) latexf << "\\end{frame}"<<std::endl;
   if(make_tex) latexf.close();
 }
 
 void TrendMakerImpl::make_plot(const Label &label,std::vector<TGraphErrors *> grs) {
+  color = 0;
+  Ncolors = grs.size();
   std::string name(label.name),legend(label.legend);
   if(make_tex) latexf<<"\\includegraphics[width="<<0.999/Ncolums<<"\\textwidth]{"<<m_project<<"_"<<name<<"_cc}"<<std::endl;
   if(make_tex&&!(((latex_j++)+1)%Ncolums)) latexf<<"\\\\"<<std::endl;
@@ -60,7 +61,16 @@ void TrendMakerImpl::make_plot(const Label &label,std::vector<TGraphErrors *> gr
     //gStyle->SetPalette(51);
     first = false; 
   }
+  int i = -1;
   for( auto gr : grs) {
+    ++i;
+    TGraphErrors *p_gr;
+    for ( auto ggr : graphs )
+      if(ggr.first.name=="likelihood_p_value") p_gr = ggr.second.at(i);
+    bool skip = false;
+    for(int j = 0;j<p_gr->GetN();++j) 
+      if(p_gr->GetY()[j]<0.001) { skip = true; break; }
+    if(skip&&skip_lowp) continue;
     draw_on_pad(name,legend,gr);
   }
   TLegend *tlegend_tmp = gPad->BuildLegend();
@@ -89,18 +99,21 @@ void TrendMakerImpl::fill_correlations() {
   for(auto cor : TrendDataImpl::get_correlation_items()) {
     const std::string &var1(cor.first);
     const std::string &var2(cor.second);
-    TH1D *h_corr = new TH1D((var1+"_"+var2).c_str(),(var1+" "+var2).c_str(),10,0,1);
-    for( auto data : datas )
-      h_corr->Fill(data->get_correlations().at(i));
+    TH1D *h_corr = new TH1D((var1+"_"+var2).c_str(),(var1+" "+var2).c_str(),20,-1,1);
+    for( auto data : datas ) {
+      if(data->is_corrvar_fixed().at(i)) 
+        h_corr->Fill(data->get_correlations().at(i));
+    }
     ++i;
     correlation.push_back(h_corr);
   }
 }
 
 Int_t NextPaletteColor(int fNextPaletteColor,int fNumPaletteColor) {
-  Int_t ncolors = gStyle->GetNumberOfColors();
+  static const Int_t ncolors = TColor::GetNumberOfColors();
   Int_t i = (fNextPaletteColor+0.0)/(fNumPaletteColor-1)*(ncolors-2)+1;
-  return gStyle->GetColorPalette(i);
+  //std::cout<<i<<" "<<ncolors<<" "<<fNextPaletteColor<<" "<<fNumPaletteColor<<std::endl;
+  return TColor::GetColorPalette(i);
 }
 
 void TrendMakerImpl::draw_on_pad(const std::string &name,const std::string &legend,TGraphErrors *gr) {
@@ -144,7 +157,7 @@ void TrendMakerImpl::draw_on_pad(const std::string &name,const std::string &lege
   la->SetNDC();
   la->SetTextSize(0.1);
   la->DrawLatex(0.2,0.838,legend.c_str());
-  Int_t i = NextPaletteColor(color,Ncolors);
+  Int_t i = NextPaletteColor(color++,Ncolors);
   gr->SetLineColor(i);
   gr->SetMarkerColor(i);
   gr->SetFillColorAlpha(i,0.3);
