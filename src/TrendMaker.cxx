@@ -1,7 +1,9 @@
 #include "TrendMaker.h"
 #include <iostream>
 #include "Factory.h"
+#include "TLegend.h"
 #include "TChain.h"
+#include "TROOT.h"
 #include "TGraphErrors.h"
 #include "TStyle.h"
 #include "TCanvas.h"
@@ -10,161 +12,194 @@
 #include "TPave.h"
 #include "TF1.h"
 #include "TList.h"
+#include "TH1D.h"
 #include <cassert>
+#include "TrendData.h"
+static int latex_j = 0;
 TrendMakerImpl::TrendMakerImpl(const std::string &var) :
-  m_var(var),m_out()
+  m_var(var),m_project(),m_out(),label_vars(),file_paths(),make_tex(false),
+  vars(),names(),arrays(),array_names(),latexf(),Ncolums(5)
 {}
 
-bool TrendMakerImpl::next(double &label_var,std::string &file_path) const {
-  static std::vector<double>::const_iterator varIt = label_vars.begin();
-  static std::vector<std::string>::const_iterator fIt = file_paths.begin();
-  if(varIt==label_vars.end()) {
-    varIt = label_vars.begin();
-    fIt = file_paths.begin();
-    return false;
-  }
-  label_var = *varIt; ++varIt;
-  file_path = *fIt; ++fIt;
-  return true;
-}
-void TrendMakerImpl::reg(const std::string &var,const std::string &name) {
-  vars.push_back(var);
-  names.insert(std::make_pair(var,name));
-}
-void TrendMakerImpl::regArray(const std::string &var,const std::string &name1,const std::string &name2,const std::string &name3,const std::string &name4,const std::string &name5,const std::string &name6) {
-  int size = 0;
-  std::vector<std::string> a_names;
-  a_names.push_back(name1); a_names.push_back(name2); a_names.push_back(name3); a_names.push_back(name4); a_names.push_back(name5); a_names.push_back(name6);
-  for(std::vector<std::string>::const_iterator nameIt = a_names.begin();
-      nameIt!=a_names.end();++nameIt) {
-    if(*nameIt!="") { ++size; array_names[var].push_back(*nameIt); }
-  }
-//  if(var=="beta_resolution"||var=="alpha_resolution") assert(size==6);
-//  if(var=="mlp_correction") assert(size==4);
-  arrays.insert(std::make_pair(var,size));
-}
 void TrendMakerImpl::make_plots() {
-  std::vector<double> x,ex;
-  double label_var(0); std::string file_path;
-  TChain *tree = new TChain("fit_results");
-  while(next(label_var,file_path)) {
-    tree->Add(file_path.c_str());
-    if(x.size()>0&&label_var<x.back()) {
-      std::cout<<"don't be crazy.. put label var in order!"<<std::endl;
-      std::abort();
-    }
-    x.push_back(label_var);
-    ex.push_back(0);
+  if(m_out=="") m_out=".";
+  if(!graphs.size()) gather_graphs();
+  if(make_tex) latexf.open(m_out+"/trend_"+m_project+"_"+m_var+".tex");
+  if(make_tex) latexf << "\\begin{frame}[plain]{"<<m_project<<"}"<<std::endl;
+  if(graphs.size()>12) Ncolums = 5; else Ncolums = 4;
+  color = 0;
+  Ncolors = graphs.front().second.size();
+  for( auto grs : graphs ) {
+    make_plot(grs.first /* label */,grs.second /* vector of TGraphErrors */);
   }
 
-  std::map<std::string,double> var_holder,evar_holder;
-  std::map<std::string,std::vector<double> > y,ey;
-  for(std::vector<std::string>::const_iterator varIt = vars.begin();
-      varIt!=vars.end();++varIt) {
-    assert(var_holder.find(*varIt)==var_holder.end()); // to avoid corruption
-    var_holder.insert(std::make_pair(*varIt,0));
-    y.insert(std::make_pair(*varIt,std::vector<double>()));
-    tree->SetBranchAddress(varIt->c_str(),&var_holder.at(*varIt));
-    evar_holder.insert(std::make_pair(*varIt,0));
-    ey.insert(std::make_pair(*varIt,std::vector<double>()));
-    if(tree->GetBranchStatus(("err_"+*varIt).c_str())) {
-      tree->SetBranchAddress(("err_"+*varIt).c_str(),&evar_holder.at(*varIt));
-    }
+  for( auto cor : correlation ) {
+    make_correlation( cor );
   }
-  std::map<std::string,std::vector<double> > array_holder,earray_holder;
-  std::map<std::string,std::vector<std::vector<double> > > array_y,array_ey;
-  for(std::map<std::string,int>::const_iterator arrayIt = arrays.begin();
-      arrayIt!=arrays.end();++arrayIt) {
-    assert(array_holder.find(arrayIt->first)==array_holder.end()); // to avoid corruption
-    array_holder.insert(std::make_pair(arrayIt->first,std::vector<double>(6)));
-    array_y.insert(std::make_pair(arrayIt->first,std::vector<std::vector<double> >(arrayIt->second,std::vector<double>())));
-    tree->SetBranchAddress(arrayIt->first.c_str(),&(array_holder.at(arrayIt->first)[0]));
-    earray_holder.insert(std::make_pair(arrayIt->first,std::vector<double>(6)));
-    array_ey.insert(std::make_pair(arrayIt->first,std::vector<std::vector<double> >(arrayIt->second,std::vector<double>())));
-    if(tree->GetBranchStatus(("err_"+arrayIt->first).c_str())) {
-      tree->SetBranchAddress(("err_"+arrayIt->first).c_str(),&earray_holder.at(arrayIt->first)[0]);
-    }
-  }
-
-  assert(tree->GetEntries()==x.size());
-  for(int i = 0;i<x.size();++i) {
-    tree->GetEntry(i);
-    for(std::vector<std::string>::const_iterator varIt = vars.begin();
-        varIt!=vars.end();++varIt) {
-      y.at(*varIt).push_back(var_holder.at(*varIt));
-      ey.at(*varIt).push_back(evar_holder.at(*varIt));
-    }
-    for(std::map<std::string,int>::const_iterator arrayIt = arrays.begin();
-        arrayIt!=arrays.end();++arrayIt)
-      for(int i = 0;i<arrayIt->second;++i) {
-        array_y.at(arrayIt->first).at(i).push_back(array_holder.at(arrayIt->first).at(i));
-        array_ey.at(arrayIt->first).at(i).push_back(earray_holder.at(arrayIt->first).at(i));
-      }
-  }
-
-  if(make_tex) latexf.open(m_out+"/trend_"+m_var+".tex");
-  for(std::vector<std::string>::const_iterator varIt = vars.begin();
-      varIt!=vars.end();++varIt)
-    draw_on_pad(*varIt,names.at(*varIt),x,y.at(*varIt),ex,ey.at(*varIt));
-  for(std::map<std::string,int>::const_iterator arrayIt = arrays.begin();
-      arrayIt!=arrays.end();++arrayIt)
-    for(int i = 0;i<arrayIt->second;++i)
-      draw_on_pad(Form("%s_%d",arrayIt->first.c_str(),i),array_names.at(arrayIt->first).at(i),x,array_y.at(arrayIt->first).at(i),ex,array_ey.at(arrayIt->first).at(i));
+  if(make_tex) latexf << "\\end{frame}"<<std::endl;
+  if(make_tex) latexf << "\\begin{frame}[plain]"<<std::endl;
+  make_legend();
+  if(make_tex) latexf << "\\end{frame}"<<std::endl;
   if(make_tex) latexf.close();
 }
-#include "TROOT.h"
-void TrendMakerImpl::draw_on_pad(const std::string &name,const std::string &legend,const std::vector<double> &x,const std::vector<double> &y,const std::vector<double> &ex,const std::vector<double> &ey) {
-  if(legend.find("cpd")!=std::string::npos&&y.front()>86400) {
-    std::vector<double> newy,newey;
-    std::vector<double>::const_iterator yIt = y.begin();
-    std::vector<double>::const_iterator eyIt = ey.begin();
-    for(;yIt!=y.end();++yIt,++eyIt) {
-      newy.push_back(*yIt/86400);
-      newey.push_back(*eyIt/86400);
-    }
-    std::cout<<std::string(legend).replace(legend.find("cpd"),3,"Bq")<<std::endl;
-    return draw_on_pad(name,std::string(legend).replace(legend.find("cpd"),3,"Bq"),x,newy,ex,newey);
-  }
+
+void TrendMakerImpl::make_plot(const Label &label,std::vector<TGraphErrors *> grs) {
+  std::string name(label.name),legend(label.legend);
+  if(make_tex) latexf<<"\\includegraphics[width="<<0.999/Ncolums<<"\\textwidth]{"<<m_project<<"_"<<name<<"_cc}"<<std::endl;
+  if(make_tex&&!(((latex_j++)+1)%Ncolums)) latexf<<"\\\\"<<std::endl;
   TCanvas *cc = new TCanvas((name+"_cc").c_str(),legend.c_str(),800,600);
   gStyle->SetOptTitle(0);
   static bool first = true;
-  if(first) { gROOT->ProcessLine(".x ~/styles/TStyle_GSSI_dingxf_light.C"); gStyle->SetOptFit(0); gStyle->SetPadGridX(false); gStyle->SetPadGridY(false); first = false; }
-  if(make_tex) latexf<<"\\includegraphics[width=0.2\\textwidth]{"<<m_out<<"_"<<name<<"_cc}"<<std::endl;
-  static int j = 0;
-  if(make_tex&&!(((j++)+1)%5)) latexf<<"\\\\"<<std::endl;
-  TGraphErrors *gr = new TGraphErrors(x.size(),&x[0],&y[0],&ex[0],&ey[0]);
-  gr->Draw("AP");
+  if(first) { 
+    gROOT->ProcessLine(".x ~/styles/TStyle_GSSI_dingxf_light.C"); 
+    gStyle->SetOptFit(0); 
+    gStyle->SetPadGridX(false); 
+    gStyle->SetPadGridY(true); 
+    //gStyle->SetPalette(kDeepSea);
+    gStyle->SetPalette(55);
+    //gStyle->SetPalette(51);
+    first = false; 
+  }
+  for( auto gr : grs) {
+    draw_on_pad(name,legend,gr);
+  }
+  TLegend *tlegend_tmp = gPad->BuildLegend();
+  tlegend = (TLegend*)(tlegend_tmp->Clone());
+  gPad->GetListOfPrimitives()->Remove((TObject*)tlegend_tmp);
+  cc->Print((m_out+"/"+m_project+"_"+name+"_cc.pdf").c_str());
+}
+
+void TrendMakerImpl::gather_graphs() {
+  for(auto data : datas) {
+    TGraphErrors *gr;
+    std::string name,legend;
+    while((gr = data->next_graph(name,legend))) {
+      Label label { name, legend };
+      if(graphs.find(label)==graphs.end()) {
+        graphs.insert(std::make_pair(label,std::vector<TGraphErrors *>()));
+      }
+      graphs.at(label).push_back(gr);
+    }
+  }
+  fill_correlations();
+}
+
+void TrendMakerImpl::fill_correlations() {
+  int i = 0;
+  for(auto cor : TrendDataImpl::get_correlation_items()) {
+    const std::string &var1(cor.first);
+    const std::string &var2(cor.second);
+    TH1D *h_corr = new TH1D((var1+"_"+var2).c_str(),(var1+" "+var2).c_str(),10,0,1);
+    for( auto data : datas )
+      h_corr->Fill(data->get_correlations().at(i));
+    ++i;
+    correlation.push_back(h_corr);
+  }
+}
+
+Int_t NextPaletteColor(int fNextPaletteColor,int fNumPaletteColor) {
+  Int_t ncolors = gStyle->GetNumberOfColors();
+  Int_t i = (fNextPaletteColor+0.0)/(fNumPaletteColor-1)*(ncolors-2)+1;
+  return gStyle->GetColorPalette(i);
+}
+
+void TrendMakerImpl::draw_on_pad(const std::string &name,const std::string &legend,TGraphErrors *gr) {
+//  std::cout<<"Plotting ["<<gr<<"] on pad with X1 "<<gr->GetX()[0]<<" "<<" Y1 "<<gr->GetY()[0]<<std::endl;
+  if(legend.find("cpd")!=std::string::npos&&gr->GetY()[0]>86400) {
+    std::vector<double> y,ey;
+    for(int i = 0;i<gr->GetN();++i) {
+      y.push_back(gr->GetY()[i]/86400);
+      ey.push_back(gr->GetEY()[i]/86400);
+    }
+    TGraphErrors *gr_new = new TGraphErrors(gr->GetN(),gr->GetX(),&y[0],gr->GetEX(),&ey[0]);
+//    std::cout<<std::string(legend).replace(legend.find("cpd"),3,"Bq")<<std::endl;
+    return draw_on_pad(name,std::string(legend).replace(legend.find("cpd"),3,"Bq"),gr_new);
+  }
+  if(gPad->GetListOfPrimitives()->GetSize()) gr->Draw("L3"); else {
+    gr->Draw("AL3");
+    gr->GetXaxis()->SetTitle(m_var.c_str());
+    gr->GetXaxis()->SetNdivisions(505);
+    gr->GetXaxis()->SetNoExponent();
+    gr->GetYaxis()->SetTitle(legend.c_str());
+//    if(name=="Kr85_rate") gr->GetYaxis()->SetRangeUser(-5,20);
+//    if(name=="Bi210_rate") { gr->GetYaxis()->SetRangeUser(0,35); }
+//    if(name=="likelihood_p_value") { gr->GetYaxis()->SetRangeUser(0,1); }
+    double ymin = TrendDataImpl::get_config_ymin().at(name);
+    double ymax = TrendDataImpl::get_config_ymax().at(name);
+    std::cout<<name<<" "<<ymin<<" "<<ymax<<std::endl;
+    if(!((ymin==0)&&(ymax==0))) gr->GetYaxis()->SetRangeUser(ymin,ymax);
+    if(name=="likelihood_p_value") gStyle->SetPadGridY(false); 
+  }
   gr->SetMarkerStyle(20);
-  if(name=="Kr85_rate") gr->GetYaxis()->SetRangeUser(-5,20);
-//  if(name=="nu_pp_rate") gr->GetYaxis()->SetRangeUser(200,300);
-  gr->GetXaxis()->SetTitle(m_var.c_str());
-  gr->GetXaxis()->SetNdivisions(505);
-  gr->GetXaxis()->SetNoExponent();
-  gr->GetYaxis()->SetTitle(legend.c_str());
-  //  pf.at(i)->GetYaxis()->SetRangeUser(y_min.at(i),y_max.at(i));
+  TIter next(gPad->GetListOfPrimitives());
+  TObject *obj;
+  while(( obj = next() )) {
+    if(obj->ClassName()==std::string("TLatex")) {
+      gPad->GetListOfPrimitives()->Remove(obj);
+      delete obj;
+    }
+  }
   TLatex *la = new TLatex;
   la->SetTextFont(132);
   la->SetNDC();
   la->SetTextSize(0.1);
   la->DrawLatex(0.2,0.838,legend.c_str());
-  gPad->Update(); gPad->Modified();
-  gr->Fit("pol0","Q0","0");
-  TF1 *p0 = static_cast<TF1*>(gr->GetListOfFunctions()->FindObject("pol0"));
-  assert(p0);
-  double ymin = p0->GetParameter(0)-p0->GetParError(0);
-  double ymax = p0->GetParameter(0)+p0->GetParError(0);
-  TPave *pave = new TPave(xmin(),ymin,xmax(),ymax,0,"br");
-  pave->SetFillColor(3);
-  pave->SetFillStyle(3013);
-  pave->SetLineWidth(2);
-  pave->Draw();
-  //  double N = inj_rate.at(i)*exposure;
-  //  double inj_rate_low = (N-sqrt(N))/exposure;
-  //  double inj_rate_up = (N+sqrt(N))/exposure;
-  //  TPave *inj = new TPave(test_par[0],inj_rate_low,test_par[1],inj_rate_up,0,"br");
-  //  inj->SetFillColor(4);
-  //  inj->SetFillStyle(3013);
-  //  inj->SetLineWidth(2);
-  //  inj->Draw();
-  cc->Print((m_out+"/"+m_out+"_"+name+"_cc.pdf").c_str());
+  Int_t i = NextPaletteColor(color,Ncolors);
+  gr->SetLineColor(i);
+  gr->SetMarkerColor(i);
+  gr->SetFillColorAlpha(i,0.3);
+  gr->SetFillStyle(1001);
+  //gr->SetFillStyle(3144);
+  gr->SetMarkerColor(i);
+  //gr->Fit("pol0","Q0","0");
+  //TF1 *p0 = static_cast<TF1*>(gr->GetListOfFunctions()->FindObject("pol0"));
+  //assert(p0);
+  //double ymin = p0->GetParameter(0)-p0->GetParError(0);
+  //double ymax = p0->GetParameter(0)+p0->GetParError(0);
+  //TPave *pave = new TPave(xmin(),ymin,xmax(),ymax,0,"br");
+  //pave->SetFillColor(i);
+  //pave->SetFillStyle(3013);
+  //pave->SetLineWidth(2);
+  //pave->Draw();
+}
+double TrendMakerImpl::xmin() const { return datas.front()->xmin(); }
+double TrendMakerImpl::xmax() const { return datas.front()->xmax(); }
+void TrendMakerImpl::make_correlation(TH1 *h_corr) {
+  std::string name(h_corr->GetName()),legend(h_corr->GetTitle());
+  if(make_tex) latexf<<"\\includegraphics[width="<<0.999/Ncolums<<"\\textwidth]{"<<m_project<<"_"<<name<<"_cc}"<<std::endl;
+  if(make_tex&&!(((latex_j++)+1)%Ncolums)) latexf<<"\\\\"<<std::endl;
+  TCanvas *cc = new TCanvas((name+"_cc").c_str(),legend.c_str(),800,600);
+  h_corr->Draw();
+  h_corr->GetXaxis()->SetTitle("correlation");
+  h_corr->GetYaxis()->SetTitle("Entries");
+
+  TIter next(gPad->GetListOfPrimitives());
+  TObject *obj;
+  while(( obj = next() )) {
+    if(obj->ClassName()==std::string("TLatex")) {
+      gPad->GetListOfPrimitives()->Remove(obj);
+      delete obj;
+    }
+  }
+  TLatex *la = new TLatex;
+  la->SetTextFont(132);
+  la->SetNDC();
+  la->SetTextSize(0.1);
+  la->DrawLatex(0.2,0.838,legend.c_str());
+
+  cc->Print((m_out+"/"+m_project+"_"+name+"_cc.pdf").c_str());
+}
+void TrendMakerImpl::make_legend() {
+  std::string name("legend"),legend("legend");
+  if(make_tex) latexf<<"\\includegraphics[width=0.999\\textwidth]{"<<m_project<<"_"<<name<<"_cc}"<<std::endl;
+  if(make_tex&&!(((latex_j++)+1)%Ncolums)) latexf<<"\\\\"<<std::endl;
+  TCanvas *cc = new TCanvas((name+"_cc").c_str(),legend.c_str(),800,600);
+  tlegend->Draw();
+  tlegend->SetNColumns(2);
+  tlegend->ConvertNDCtoPad();
+  tlegend->SetX1(0.01);
+  tlegend->SetY1(0.01);
+  tlegend->SetX2(0.99);
+  tlegend->SetY2(0.99);
+  cc->Print((m_out+"/"+m_project+"_"+name+"_cc.pdf").c_str());
 }

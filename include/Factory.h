@@ -12,9 +12,16 @@ class Factory{
     static Factory *factory;
     std::vector<T*> makers;
 };
-#include "TrendMaker.h" 
+#ifdef TrendData_H
+template<> Factory<TrendData> *Factory<TrendData>::factory = 0LL;
+template<> TrendData *Factory<TrendData>::create(const std::string &var) {
+  return new TrendDataImpl(var);
+}
+#endif
+#ifdef TrendMaker_H
 template<> Factory<TrendMaker> *Factory<TrendMaker>::factory = 0LL;
 template<> TrendMaker *Factory<TrendMaker>::create(const std::string &var) {
   return new TrendMakerImpl(var);
 }
+#endif
 #endif

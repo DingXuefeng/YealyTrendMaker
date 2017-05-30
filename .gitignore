@@ -31,3 +31,4 @@
 main
 *.dSYM
 report/*
+data/*
