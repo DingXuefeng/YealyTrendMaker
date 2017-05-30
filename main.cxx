@@ -11,6 +11,7 @@ void load_data(TrendMaker *maker,char *argv[]);
 int main(int argc,char *argv[]) {
   config_POI();
 
+    
   assert(argc==5);
   // argv[1]: var. say, period
   // argv[2]: name of the project, affecting name of the output tex file

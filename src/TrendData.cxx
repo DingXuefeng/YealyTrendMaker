@@ -1,6 +1,6 @@
 #include "TrendData.h"
 #include <iostream>
-#include "Factory.h"
+//#include "Factory.h"
 #include "TChain.h"
 #include "TGraphErrors.h"
 #include "TStyle.h"

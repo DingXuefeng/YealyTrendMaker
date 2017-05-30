@@ -19,7 +19,7 @@ var="year"
 #project=krossi_fixg1g2g3_krossi_input
 #project=krossi_hisconfig_hisinput
 project=krossi_hisconfig_official_input
-files="data/${project}/filelist"
+#files="data/${project}/filelist"
 #files="../yearly/%d_result.root"
 #files="data/with_vped/%d_result.root"
 #files="data/without_vped/%d_result.root"
@@ -32,11 +32,12 @@ files="data/${project}/filelist"
 function add {
   project=$1
   list=$2
-  echo "data/${project}/filelist" $project >> $list
+  echo "data/${project}/example_filelist" $project >> $list
 }
 function run {
   project=$1
   list=$2
+  echo "./main ${var} ${project} ${output} $list"
   ./main ${var} ${project} ${output} $list
 }
 function pick {
@@ -44,6 +45,7 @@ function pick {
   keyword=$2
   list=list_$name
 
+  rm $list
   for x in {1..216}; do
     y=`ls data | grep ^${x}-`
     if [[ ! -f data/${y}/2012/2012_result.root ]]; then continue; fi
@@ -54,6 +56,6 @@ function pick {
   run $name $list
 }
 
-pick pep
-pick Be7N
-pick Be7S
+pick pep pep
+pick Be7N Be7N
+pick Be7S Be7S

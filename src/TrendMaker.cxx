@@ -1,6 +1,6 @@
 #include "TrendMaker.h"
 #include <iostream>
-#include "Factory.h"
+//#include "Factory.h"
 #include "TLegend.h"
 #include "TChain.h"
 #include "TROOT.h"
@@ -28,7 +28,7 @@ void TrendMakerImpl::make_plots() {
   if(make_tex) latexf << "\\begin{frame}[plain]{"<<m_project<<"}"<<std::endl;
   if(graphs.size()>12) Ncolums = 5; else Ncolums = 4;
   color = 0;
-  Ncolors = graphs.front().second.size();
+  Ncolors = graphs.begin()->second.size();
   for( auto grs : graphs ) {
     make_plot(grs.first /* label */,grs.second /* vector of TGraphErrors */);
   }
@@ -38,7 +38,7 @@ void TrendMakerImpl::make_plots() {
   }
   if(make_tex) latexf << "\\end{frame}"<<std::endl;
   if(make_tex) latexf << "\\begin{frame}[plain]"<<std::endl;
-  make_legend();
+  //make_legend();
   if(make_tex) latexf << "\\end{frame}"<<std::endl;
   if(make_tex) latexf.close();
 }
