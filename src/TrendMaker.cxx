@@ -70,7 +70,7 @@ void TrendMakerImpl::make_plot(const Label &label,std::vector<TGraphErrors *> gr
     gStyle->SetOptFit(0); 
     gStyle->SetPadGridX(false); 
     gStyle->SetPadGridY(true); 
-    gStyle->SetPalette(kDeepSea);
+    gStyle->SetPalette(kBlueYellow);
     //gStyle->SetPalette(55);
     //gStyle->SetPalette(51);
     first = false; 
@@ -173,7 +173,7 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
     double ymax = TrendDataImpl::get_config_ymax().at(name);
     std::cout<<name<<" "<<ymin<<" "<<ymax<<std::endl;
     if(!((ymin==0)&&(ymax==0))) gr->GetYaxis()->SetRangeUser(ymin,ymax);
-    if(name=="likelihood_p_value") gStyle->SetPadGridY(false); 
+    if(name=="likelihood_p_value") gPad->SetGridy(false); 
   }
   gr->SetMarkerStyle(20);
   TIter next(gPad->GetListOfPrimitives());
