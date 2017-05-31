@@ -70,8 +70,8 @@ void TrendMakerImpl::make_plot(const Label &label,std::vector<TGraphErrors *> gr
     gStyle->SetOptFit(0); 
     gStyle->SetPadGridX(false); 
     gStyle->SetPadGridY(true); 
-    //gStyle->SetPalette(kDeepSea);
-    gStyle->SetPalette(55);
+    gStyle->SetPalette(kDeepSea);
+    //gStyle->SetPalette(55);
     //gStyle->SetPalette(51);
     first = false; 
   }
@@ -100,8 +100,8 @@ TGraphErrors *TrendMakerImpl::weighted(std::vector<TGraphErrors*> &grs) {
     double p_sum = 0;
     int i = 0;
     for( auto gr: grs ) {
-      sum += gr->GetY()[j]; // j: year
-      e_sum += gr->GetEY()[j]; // j: year
+      sum += gr->GetY()[j]*p_values.at(i)[j]; // j: year
+      e_sum += gr->GetEY()[j]*p_values.at(i)[j]; // j: year
       p_sum += p_values.at(i)[j]; // i: datasets
       ++i;
     }
@@ -190,9 +190,10 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
   la->SetTextSize(0.1);
   la->DrawLatex(0.2,0.838,legend.c_str());
   Int_t i = NextPaletteColor(color++,Ncolors);
-  gr->SetLineColor(i);
-  gr->SetMarkerColor(i);
-  gr->SetFillColorAlpha(i,(dataset_i==p_values.size())?1:(p_values.at(dataset_i)[gr->GetN()-1]));
+  double alpha = (dataset_i==p_values.size())?1:(p_values.at(dataset_i)[gr->GetN()-1]);
+  gr->SetLineColorAlpha(i,alpha);
+  gr->SetMarkerColorAlpha(i,alpha);
+  gr->SetFillColorAlpha(i,alpha);
   gr->SetFillStyle(1001);
   //gr->SetFillStyle(3144);
   gr->SetMarkerColor(i);
