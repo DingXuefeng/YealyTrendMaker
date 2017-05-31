@@ -59,7 +59,6 @@ function pick {
 }
 skip=0
 pick pep pep
-exit
 pick pepKr "-Kr.*pep"
 pick pepnoKr noKr.*pep
 pick pepKrfixLY "fixLY.*-Kr.*pep"
@@ -80,26 +79,26 @@ pick Be7SKrfixLY "fixLY.*-Kr.*Be7S"
 pick Be7SnoKrfixLY "fixLY.*noKr.*Be7S"
 pick Be7SKrfreeLY "-free-.*-Kr.*Be7S" "fixBe7.*-Kr.*Be7S"
 pick Be7SnoKrfreeLY "-free-.*noKr.*Be7S" "fixBe7.*-Kr.*Be7S"
-skip=1
-
-pick selectPvaluepep pep
-pick selectPvaluepepKr "-Kr.*pep"
-pick selectPvaluepepnoKr noKr.*pep
-pick selectPvaluepepKrfixLY "fixLY.*-Kr.*pep"
-pick selectPvaluepepnoKrfixLY "fixLY.*noKr.*pep"
-pick selectPvaluepepKrfreeLY "-free-.*-Kr.*pep" "fixBe7.*-Kr.*pep"
-pick selectPvaluepepnoKrfreeLY "-free-.*noKr.*pep" "fixBe7.*-Kr.*pep"
-pick selectPvalueBe7N Be7N
-pick selectPvalueBe7NKr "-Kr.*Be7N"
-pick selectPvalueBe7NnoKr noKr.*Be7N
-pick selectPvalueBe7NKrfixLY "fixLY.*-Kr.*Be7N"
-pick selectPvalueBe7NnoKrfixLY "fixLY.*noKr.*Be7N"
-pick selectPvalueBe7NKrfreeLY "-free-.*-Kr.*Be7N" "fixBe7.*-Kr.*Be7N"
-pick selectPvalueBe7NnoKrfreeLY "-free-.*noKr.*Be7N" "fixBe7.*-Kr.*Be7N"
-pick selectPvalueBe7S Be7S
-pick selectPvalueBe7SKr "-Kr.*Be7S"
-pick selectPvalueBe7SnoKr noKr.*Be7S
-pick selectPvalueBe7SKrfixLY "fixLY.*-Kr.*Be7S"
-pick selectPvalueBe7SnoKrfixLY "fixLY.*noKr.*Be7S"
-pick selectPvalueBe7SKrfreeLY "-free-.*-Kr.*Be7S" "fixBe7.*-Kr.*Be7S"
-pick selectPvalueBe7SnoKrfreeLY "-free-.*noKr.*Be7S" "fixBe7.*-Kr.*Be7S"
+#skip=1
+#
+#pick selectPvaluepep pep
+#pick selectPvaluepepKr "-Kr.*pep"
+#pick selectPvaluepepnoKr noKr.*pep
+#pick selectPvaluepepKrfixLY "fixLY.*-Kr.*pep"
+#pick selectPvaluepepnoKrfixLY "fixLY.*noKr.*pep"
+#pick selectPvaluepepKrfreeLY "-free-.*-Kr.*pep" "fixBe7.*-Kr.*pep"
+#pick selectPvaluepepnoKrfreeLY "-free-.*noKr.*pep" "fixBe7.*-Kr.*pep"
+#pick selectPvalueBe7N Be7N
+#pick selectPvalueBe7NKr "-Kr.*Be7N"
+#pick selectPvalueBe7NnoKr noKr.*Be7N
+#pick selectPvalueBe7NKrfixLY "fixLY.*-Kr.*Be7N"
+#pick selectPvalueBe7NnoKrfixLY "fixLY.*noKr.*Be7N"
+#pick selectPvalueBe7NKrfreeLY "-free-.*-Kr.*Be7N" "fixBe7.*-Kr.*Be7N"
+#pick selectPvalueBe7NnoKrfreeLY "-free-.*noKr.*Be7N" "fixBe7.*-Kr.*Be7N"
+#pick selectPvalueBe7S Be7S
+#pick selectPvalueBe7SKr "-Kr.*Be7S"
+#pick selectPvalueBe7SnoKr noKr.*Be7S
+#pick selectPvalueBe7SKrfixLY "fixLY.*-Kr.*Be7S"
+#pick selectPvalueBe7SnoKrfixLY "fixLY.*noKr.*Be7S"
+#pick selectPvalueBe7SKrfreeLY "-free-.*-Kr.*Be7S" "fixBe7.*-Kr.*Be7S"
+#pick selectPvalueBe7SnoKrfreeLY "-free-.*noKr.*Be7S" "fixBe7.*-Kr.*Be7S"

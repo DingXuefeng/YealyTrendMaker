@@ -28,13 +28,13 @@ int main(int argc,char *argv[]) {
 void config_POI() { // paramters of interests
   TrendDataImpl::reg("likelihood_p_value","p-val",-0.1,1.1);
   //TrendDataImpl::reg("chi2_ndf","#chi^{2} / NDF",0.5,2);
-  TrendDataImpl::reg("beta_ly","LY (p.e./MeV)",450,600);
-  TrendDataImpl::reg("nu_Be7_rate","#nu ^{7}Be (cpd/100t)",20,100);
+  TrendDataImpl::reg("beta_ly","LY (p.e./MeV)",460,560);
+  TrendDataImpl::reg("nu_Be7_rate","#nu ^{7}Be (cpd/100t)",35,60);
 //  TrendDataImpl::reg("nu_pp_rate","#nu pp (cpd/100t)");
-  TrendDataImpl::reg("Bi210_rate","^{210}Bi (cpd/100t)",0,100);
-  TrendDataImpl::reg("Kr85_rate","^{85}Kr (cpd/100t)",0,100);
+  TrendDataImpl::reg("Bi210_rate","^{210}Bi (cpd/100t)",0,40);
+  TrendDataImpl::reg("Kr85_rate","^{85}Kr (cpd/100t)",0,30);
   TrendDataImpl::reg("Po210_rate","^{210}Po (cpd/100t)");
-  TrendDataImpl::reg("Po210_quenching","^{210}Po qch (cpd/100t)",0.07,0.1);
+  TrendDataImpl::reg("Po210_quenching","^{210}Po qch (cpd/100t)",0.07,0.085);
 //  TrendDataImpl::reg("C14_rate","^{14}C (cpd/100t)");
 //  TrendDataImpl::reg("synthpup_rate","synthpup (cpd/100t)");
   TrendDataImpl::reg("C11_rate","^{11}C (cpd/100t)",0,50);

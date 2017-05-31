@@ -30,6 +30,7 @@ class TrendDataImpl : public TrendData {
   // the conrete implementation class
   public:
     TrendDataImpl(const std::string &var);
+    static void regRate(const std::string &var,const std::string &name,double min_ = 0,double max_ = 0) ;
     static void reg(const std::string &var,const std::string &name,double min_ = 0,double max_ = 0) ;
     static void regArray(const std::string &var,const std::string &name1,const std::string &name2,const std::string &name3="",const std::string &name4="",const std::string &name5="",const std::string &name6="") ;
     static void regArray_min(const std::string & var,double min1=0,double min2=0,double min3=0,double min4=0,double min5=0,double min6=0) ;
