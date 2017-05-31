@@ -39,7 +39,7 @@ function run {
   project=$1
   list=$2
   echo "./main ${var} ${project} ${output} $list $skip"
-  gdb --args ./main ${var} ${project} ${output} $list $skip
+  ./main ${var} ${project} ${output} $list $skip
 }
 function pick {
   name=$1
