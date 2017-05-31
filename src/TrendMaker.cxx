@@ -10,6 +10,7 @@
 #include "TAxis.h"
 #include "TLatex.h"
 #include "TPave.h"
+#include "TColor.h"
 #include "TF1.h"
 #include "TList.h"
 #include "TH1D.h"
@@ -44,12 +45,15 @@ void TrendMakerImpl::make_plots(bool skip_lowp_) {
 }
 void TrendMakerImpl::get_p_values() {
   for ( auto ggr : graphs ) { /* std::map<Label,std::vector<TGraphErrors*> > graphs; */
-    if(ggr.first.name=="likelihood_p_values") {
+    if(ggr.first.name=="likelihood_p_value") {
       for( auto gr : ggr.second ) 
         p_values.push_back(gr->GetY());
       break;
+    } else {
+      std::cout<<ggr.first.name<<std::endl;
     }
   }
+  std::cout<<"size of p-values: "<<p_values.size()<<std::endl;
 }
 
 void TrendMakerImpl::make_plot(const Label &label,std::vector<TGraphErrors *> grs) {
@@ -164,12 +168,12 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
     gr->GetYaxis()->SetTitle(legend.c_str());
 //    if(name=="Kr85_rate") gr->GetYaxis()->SetRangeUser(-5,20);
 //    if(name=="Bi210_rate") { gr->GetYaxis()->SetRangeUser(0,35); }
-//    if(name=="likelihood_p_values") { gr->GetYaxis()->SetRangeUser(0,1); }
+//    if(name=="likelihood_p_value") { gr->GetYaxis()->SetRangeUser(0,1); }
     double ymin = TrendDataImpl::get_config_ymin().at(name);
     double ymax = TrendDataImpl::get_config_ymax().at(name);
     std::cout<<name<<" "<<ymin<<" "<<ymax<<std::endl;
     if(!((ymin==0)&&(ymax==0))) gr->GetYaxis()->SetRangeUser(ymin,ymax);
-    if(name=="likelihood_p_values") gStyle->SetPadGridY(false); 
+    if(name=="likelihood_p_value") gStyle->SetPadGridY(false); 
   }
   gr->SetMarkerStyle(20);
   TIter next(gPad->GetListOfPrimitives());
@@ -188,7 +192,7 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
   Int_t i = NextPaletteColor(color++,Ncolors);
   gr->SetLineColor(i);
   gr->SetMarkerColor(i);
-  gr->SetFillColorAlpha(i,p_values.at(dataset_i)[gr->GetN()-1]);
+  gr->SetFillColorAlpha(i,(dataset_i==p_values.size())?1:(p_values.at(dataset_i)[gr->GetN()-1]));
   gr->SetFillStyle(1001);
   //gr->SetFillStyle(3144);
   gr->SetMarkerColor(i);
