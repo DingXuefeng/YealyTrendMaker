@@ -59,6 +59,7 @@ function pick {
 }
 skip=0
 pick pep pep
+exit
 pick pepKr "-Kr.*pep"
 pick pepnoKr noKr.*pep
 pick pepKrfixLY "fixLY.*-Kr.*pep"

@@ -46,10 +46,12 @@ class TrendMakerImpl : public TrendMaker {
     void gather_graphs();
     void make_plot(const Label &legend,std::vector<TGraphErrors *> grs);
     void make_legend();
-    void draw_on_pad(const std::string &name,const std::string &legend,TGraphErrors *gr) ;
+    TGraphErrors *draw_on_pad(const std::string &name,const std::string &legend,TGraphErrors *gr) ;
     double xmin() const;
     double xmax() const;
     void fill_correlations();
+    void get_p_values();
+    TGraphErrors *weighted(std::vector<TGraphErrors *> &grs);
 
     std::vector<TrendData*> datas;
     std::map<Label,std::vector<TGraphErrors*> > graphs;
@@ -64,6 +66,8 @@ class TrendMakerImpl : public TrendMaker {
     std::vector<std::string> file_paths;
     bool make_tex;
     std::vector<std::string> vars;
+    std::vector<double*> p_values;
+    int dataset_i;
     std::map<std::string,std::string> names;
     std::map<std::string,int> arrays;
     std::map<std::string,std::vector<std::string> > array_names;

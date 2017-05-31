@@ -28,6 +28,7 @@ void TrendMakerImpl::make_plots(bool skip_lowp_) {
   if(make_tex) latexf.open(m_out+"/trend_"+m_project+"_"+m_var+".tex");
   if(make_tex) latexf << "\\begin{frame}[plain]{"<<m_project<<"}"<<std::endl;
   if(graphs.size()>12) Ncolums = 5; else Ncolums = 4;
+  get_p_values();
   for( auto grs : graphs ) {
     make_plot(grs.first /* label */,grs.second /* vector of TGraphErrors */);
   }
@@ -40,6 +41,15 @@ void TrendMakerImpl::make_plots(bool skip_lowp_) {
   make_legend();
   if(make_tex) latexf << "\\end{frame}"<<std::endl;
   if(make_tex) latexf.close();
+}
+void TrendMakerImpl::get_p_values() {
+  for ( auto ggr : graphs ) { /* std::map<Label,std::vector<TGraphErrors*> > graphs; */
+    if(ggr.first.name=="likelihood_p_values") {
+      for( auto gr : ggr.second ) 
+        p_values.push_back(gr->GetY());
+      break;
+    }
+  }
 }
 
 void TrendMakerImpl::make_plot(const Label &label,std::vector<TGraphErrors *> grs) {
@@ -61,22 +71,40 @@ void TrendMakerImpl::make_plot(const Label &label,std::vector<TGraphErrors *> gr
     //gStyle->SetPalette(51);
     first = false; 
   }
-  int i = -1;
+  dataset_i = 0;
   for( auto gr : grs) {
-    ++i;
-    TGraphErrors *p_gr;
-    for ( auto ggr : graphs )
-      if(ggr.first.name=="likelihood_p_value") p_gr = ggr.second.at(i);
-    bool skip = false;
-    for(int j = 0;j<p_gr->GetN();++j) 
-      if(p_gr->GetY()[j]<0.001) { skip = true; break; }
-    if(skip&&skip_lowp) continue;
     draw_on_pad(name,legend,gr);
+    ++dataset_i;
   }
+  TGraphErrors *weighted_gr = draw_on_pad(name,legend,weighted(grs));
+  weighted_gr->SetMarkerColor(kRed);
+  weighted_gr->SetLineColor(kRed);
+  weighted_gr->SetLineWidth(4);
+  weighted_gr->SetMarkerStyle(20);
+  weighted_gr->SetDrawOption("P");
   TLegend *tlegend_tmp = gPad->BuildLegend();
   tlegend = (TLegend*)(tlegend_tmp->Clone());
   gPad->GetListOfPrimitives()->Remove((TObject*)tlegend_tmp);
   cc->Print((m_out+"/"+m_project+"_"+name+"_cc.pdf").c_str());
+}
+TGraphErrors *TrendMakerImpl::weighted(std::vector<TGraphErrors*> &grs) {
+  std::vector<double> y,ey;
+  TGraphErrors *first_gr = grs.front();
+  for( int j = 0;j<first_gr->GetN();++j) {
+    double sum = 0;
+    double e_sum = 0;
+    double p_sum = 0;
+    int i = 0;
+    for( auto gr: grs ) {
+      sum += gr->GetY()[j]; // j: year
+      e_sum += gr->GetEY()[j]; // j: year
+      p_sum += p_values.at(i)[j]; // i: datasets
+      ++i;
+    }
+    y.push_back(sum/p_sum);
+    ey.push_back(e_sum/p_sum);
+  }
+  return new TGraphErrors(first_gr->GetN(),first_gr->GetX(),&y[0],first_gr->GetEX(),&ey[0]);
 }
 
 void TrendMakerImpl::gather_graphs() {
@@ -116,7 +144,7 @@ Int_t NextPaletteColor(int fNextPaletteColor,int fNumPaletteColor) {
   return TColor::GetColorPalette(i);
 }
 
-void TrendMakerImpl::draw_on_pad(const std::string &name,const std::string &legend,TGraphErrors *gr) {
+TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::string &legend,TGraphErrors *gr) {
 //  std::cout<<"Plotting ["<<gr<<"] on pad with X1 "<<gr->GetX()[0]<<" "<<" Y1 "<<gr->GetY()[0]<<std::endl;
   if(legend.find("cpd")!=std::string::npos&&gr->GetY()[0]>86400) {
     std::vector<double> y,ey;
@@ -136,12 +164,12 @@ void TrendMakerImpl::draw_on_pad(const std::string &name,const std::string &lege
     gr->GetYaxis()->SetTitle(legend.c_str());
 //    if(name=="Kr85_rate") gr->GetYaxis()->SetRangeUser(-5,20);
 //    if(name=="Bi210_rate") { gr->GetYaxis()->SetRangeUser(0,35); }
-//    if(name=="likelihood_p_value") { gr->GetYaxis()->SetRangeUser(0,1); }
+//    if(name=="likelihood_p_values") { gr->GetYaxis()->SetRangeUser(0,1); }
     double ymin = TrendDataImpl::get_config_ymin().at(name);
     double ymax = TrendDataImpl::get_config_ymax().at(name);
     std::cout<<name<<" "<<ymin<<" "<<ymax<<std::endl;
     if(!((ymin==0)&&(ymax==0))) gr->GetYaxis()->SetRangeUser(ymin,ymax);
-    if(name=="likelihood_p_value") gStyle->SetPadGridY(false); 
+    if(name=="likelihood_p_values") gStyle->SetPadGridY(false); 
   }
   gr->SetMarkerStyle(20);
   TIter next(gPad->GetListOfPrimitives());
@@ -160,7 +188,7 @@ void TrendMakerImpl::draw_on_pad(const std::string &name,const std::string &lege
   Int_t i = NextPaletteColor(color++,Ncolors);
   gr->SetLineColor(i);
   gr->SetMarkerColor(i);
-  gr->SetFillColorAlpha(i,0.3);
+  gr->SetFillColorAlpha(i,p_values.at(dataset_i)[gr->GetN()-1]);
   gr->SetFillStyle(1001);
   //gr->SetFillStyle(3144);
   gr->SetMarkerColor(i);
@@ -174,6 +202,7 @@ void TrendMakerImpl::draw_on_pad(const std::string &name,const std::string &lege
   //pave->SetFillStyle(3013);
   //pave->SetLineWidth(2);
   //pave->Draw();
+  return gr;
 }
 double TrendMakerImpl::xmin() const { return datas.front()->xmin(); }
 double TrendMakerImpl::xmax() const { return datas.front()->xmax(); }
