@@ -38,8 +38,9 @@ skip=1
 function run {
   project=$1
   list=$2
-  echo "./main ${var} ${project} ${output} $list $skip"
-  ./main ${var} ${project} ${output} $list $skip
+  echo "${var} ${project} ${output} $list $skip" >> task_list
+  echo $title >> task_list
+  echo $comments >> task_list
 }
 function pick {
   name=$1
@@ -48,6 +49,7 @@ function pick {
   list=list_$name
 
   rm $list
+  rm task_list
   for x in {1..216}; do
     y=`ls data | grep ^${x}-`
     if [[ ! -f data/${y}/2012/2012_result.root ]]; then continue; fi
@@ -55,15 +57,24 @@ function pick {
       add $y $list
     fi
   done
-  run $name $list
+  run $name $list 
+  ./main task_list
 }
 skip=0
+title="pep FV, w/ \& w/o $^{85}$ penalty, w/ \& w/o fix LY/$\\nu\$(\$^{7}\$Be)"; 
+comments="144 fits performed under different conditions: w/ or w/o $^{85}\$Kr penalty, w/ or w/o fix LY/$\\nu\$(\$^{7}\$Be), w/ (140-1500) or w/o externals (140-650), w/ or w/o complementary, using charge/charge-geo/charge-z variable. The correlation are filled in the histogram, and the expected correlation from MC-MC tests are drawn as green band. As we can see the correlation between \$^{210}\$Bi and \$^{85}\$Kr are stronger than expected. We will explain it in the next slides. Besides, the \$^{210}\$Bi and the light yield are expected to be strongly anti-correlated while actually we see positive-correlations, so the trend of \$^{210}\$Bi and light yield are not statistical fluctuations. The \$^{210}\$Bi is really decreasing. The red dot is the weighted sum with the inverser of the square of uncertainty" 
 pick pep "pep-"
+title="pep FV, w/o $^{85}$ penalty, free light yield"; 
+comments="fits under different conditions overlapped. Now the correlation between \$^{210}\$Bi and \$^{85}\$Kr are as expected, indicating the increase of \$^{85}\$Kr is only statistical correlation." 
+pick pepnoKrfreeLY "-free-.*noKr.*pep" "fixpep.*-Kr.*pep-"
+title="pep FV, w/o $^{85}$ penalty, fixed light yield"; 
+comments="fits under different conditions overlapped. Now the correlation between \$^{210}\$Bi and \$^{85}\$Kr are stronger, and the \$^{210}\$Bi decrease is stronger compared with the LY free case."
+pick pepnoKrfixLY "fixLY.*noKr.*pep-"
 #pick pepKr "-Kr.*pep-"
+#pick pepKrfreeLY "-free-.*-Kr.*pep" "fixpep.*-Kr.*pep-"
 #pick pepnoKr "noKr.*pep-"
 #pick pepKrfixLY "fixLY.*-Kr.*pep-"
 #pick pepnoKrfixLY "fixLY.*noKr.*pep-"
-#pick pepKrfreeLY "-free-.*-Kr.*pep" "fixpep.*-Kr.*pep-"
 #pick pepnoKrfreeLY "-free-.*noKr.*pep" "fixpep.*-Kr.*pep-"
 #pick pepN pepN
 #pick pepNKr "-Kr.*pepN"

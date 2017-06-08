@@ -7,21 +7,34 @@
 #include <fstream>
 class TGraphErrors;
 void config_POI();  // paramters of interests
-void load_data(TrendMaker *maker,char *argv[]);
+void load_data(TrendMaker *maker,const std::string &input) ;
 int main(int argc,char *argv[]) {
   config_POI();
 
     
-  assert(argc==6);
+  assert(argc==2);
   // argv[1]: var. say, period
   // argv[2]: name of the project, affecting name of the output tex file
   // argv[3]: output folder
   // argv[4]: inputlist
   // argv[5]: skip p-value?
-  TrendMaker *maker = Factory<TrendMaker>::get()->create(argv[1]);
-  maker->set_output_path(argv[2]/*name of the project*/,argv[3]/*output path*/,true/*make latex*/);
-  load_data(maker,argv);
-  maker->make_plots(atoi(argv[5]));
+  std::ifstream task_list;
+  task_list.open(argv[1]);
+  std::string var,project,output,input,skip,title,comments;
+  while(true) {
+    task_list>>var>>project>>output>>input>>skip;
+    std::getline(task_list,title);
+    std::getline(task_list,title);
+    std::getline(task_list,comments);
+    if(task_list.fail()) break;
+    std::cout<<"./main "<<var<<" "<<project<<" "<<output<<" "<<input<<" "<<skip<<" <"<<title<<"> ["<<comments<<"]"<<std::endl;
+    TrendMaker *maker = Factory<TrendMaker>::get()->create(var);
+    maker->config_latex(title,comments);
+    maker->set_output_path(project/*name of the project*/,output/*output path*/,true/*make latex*/);
+    load_data(maker,input);
+    maker->make_plots(atoi(skip.c_str()));
+  }
+  task_list.close();
 
   return 0;
 }
@@ -46,18 +59,18 @@ void config_POI() { // paramters of interests
   //TrendDataImpl::regArray("beta_resolution","g1","g2","g3");
   //TrendDataImpl::regArray_min("beta_resolution",1,0,0);
   //TrendDataImpl::regArray_max("beta_resolution",2,6,3);
-  TrendDataImpl::regCorrelation("Kr85_rate","Bi210_rate");
+  TrendDataImpl::regCorrelation("Kr85_rate","Bi210_rate",-0.57);
   //TrendDataImpl::regCorrelation("C11_quenching","Bi210_rate");
   //TrendDataImpl::regCorrelation("Po210_quenching","Bi210_rate");
   //TrendDataImpl::regCorrelation("nu_Be7_rate","Bi210_rate");
-  TrendDataImpl::regCorrelation("beta_ly","Bi210_rate");
+  TrendDataImpl::regCorrelation("beta_ly","Bi210_rate",-0.71);
   //TrendDataImpl::regCorrelation("Ext_K40_rate","Bi210_rate");
   //TrendDataImpl::regCorrelation("Kr85_rate","nu_Be7_rate");
   //TrendDataImpl::regCorrelation("C11_quenching","beta_ly");
 }
-void load_data(TrendMaker *maker,char *argv[]) {
+void load_data(TrendMaker *maker,const std::string &input) {
   std::ifstream inputlists;
-  inputlists.open(argv[4]);
+  inputlists.open(input);
   while(true) {
     std::string filename,project;
     inputlists >> filename >> project;

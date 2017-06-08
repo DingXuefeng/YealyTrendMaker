@@ -35,12 +35,13 @@ class TrendDataImpl : public TrendData {
     static void regArray(const std::string &var,const std::string &name1,const std::string &name2,const std::string &name3="",const std::string &name4="",const std::string &name5="",const std::string &name6="") ;
     static void regArray_min(const std::string & var,double min1=0,double min2=0,double min3=0,double min4=0,double min5=0,double min6=0) ;
     static void regArray_max(const std::string & var,double max1=0,double max2=0,double max3=0,double max4=0,double max5=0,double max6=0) ;
-    static void regCorrelation(const std::string & var1,const std::string &var2);
+    static void regCorrelation(const std::string & var1,const std::string &var2,double exp_cor);
     void addFiles(double label_var,const std::string &file_path) ;
     TGraphErrors *next_graph(std::string &name,std::string &legend);
     std::vector<double> &get_correlations() { return correlation; }
     std::vector<bool> &is_corrvar_fixed() { return corrvar_fixed; }
     static std::multimap<std::string,std::string> &get_correlation_items() { return correlation_terms; }
+    static std::vector<double> &get_correlation_exp() { return correlation_exp; }
     double xmin() const { return *std::min_element(label_vars.begin(),label_vars.end()); }
     double xmax() const { return *std::max_element(label_vars.begin(),label_vars.end()); }
     static std::map<std::string,double> &get_config_ymin() { return config_ymin; }
@@ -58,6 +59,7 @@ class TrendDataImpl : public TrendData {
     static std::vector<std::string> vars;
     static std::map<std::string,std::string> names;
     static std::map<std::string,int> arrays;
+    static std::vector<double> correlation_exp;
     static std::multimap<std::string,std::string> correlation_terms;
     std::vector<double> correlation;
     static std::map<std::string,std::vector<std::string> > array_names;

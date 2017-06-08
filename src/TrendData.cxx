@@ -20,6 +20,7 @@ std::vector<std::string> TrendDataImpl::graph_legend;
 std::map<std::string,double> TrendDataImpl::config_ymin;
 std::map<std::string,double> TrendDataImpl::config_ymax;
 std::multimap<std::string,std::string> TrendDataImpl::correlation_terms;
+std::vector<double> TrendDataImpl::correlation_exp;
 TrendDataImpl::TrendDataImpl(const std::string &var) :
   m_var(var),label_vars(),file_paths(),
   varIt(label_vars.end()),fIt(file_paths.end()),
@@ -79,8 +80,9 @@ void TrendDataImpl::regArray_max(const std::string & var,double max1,double max2
   }
 }
 
-void TrendDataImpl::regCorrelation(const std::string &var1,const std::string &var2) {
+void TrendDataImpl::regCorrelation(const std::string &var1,const std::string &var2,double exp_cor) {
   correlation_terms.insert(std::make_pair(var1,var2));
+  correlation_exp.push_back(exp_cor);
 }
 
 void TrendDataImpl::make_graphs() {

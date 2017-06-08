@@ -26,6 +26,7 @@ class TrendMaker {
   public:
     virtual void set_output_path(const std::string &project,const std::string &out,bool make_tex_ = false) = 0; // optional. if set, the output result will be saved in the output path
     virtual void add_data(TrendData *data) = 0;
+    virtual void config_latex(const std::string &title,const std::string &comments) = 0;
     virtual void make_plots(bool skip_lowp) = 0;
     virtual ~TrendMaker() {}
 };
@@ -39,10 +40,11 @@ class TrendMakerImpl : public TrendMaker {
   public:
     TrendMakerImpl(const std::string &var);
     void set_output_path(const std::string &project,const std::string &out,bool make_tex_ ) { m_project = project; m_out = out; make_tex = make_tex_; } 
+    void config_latex(const std::string &title_,const std::string &comments_) { title = title_; comments = comments_; }
     void add_data(TrendData *data) { datas.push_back(data); }
     void make_plots(bool skip_lowp_);
   private:
-    void make_correlation(TH1 *h_corr);
+    void make_correlation(TH1 *h_corr,double cor_exp);
     void gather_graphs();
     void make_plot(const Label &legend,std::vector<TGraphErrors *> grs);
     void make_legend();
@@ -58,6 +60,8 @@ class TrendMakerImpl : public TrendMaker {
 
     TLegend *tlegend;
 
+    std::string title;
+    std::string comments;
     const std::string m_var;
     void fill();
     std::string m_project;

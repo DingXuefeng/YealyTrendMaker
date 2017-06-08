@@ -19,7 +19,7 @@
 static int latex_j = 0;
 TrendMakerImpl::TrendMakerImpl(const std::string &var) :
   m_var(var),m_project(),m_out(),label_vars(),file_paths(),make_tex(false),
-  vars(),names(),arrays(),array_names(),latexf(),Ncolums(5)
+  vars(),names(),arrays(),array_names(),latexf(),Ncolums(3)
 {}
 
 void TrendMakerImpl::make_plots(bool skip_lowp_) {
@@ -27,20 +27,24 @@ void TrendMakerImpl::make_plots(bool skip_lowp_) {
   if(m_out=="") m_out=".";
   if(!graphs.size()) gather_graphs();
   if(make_tex) latexf.open(m_out+"/trend_"+m_project+"_"+m_var+".tex");
-  if(make_tex) latexf << "\\begin{frame}[plain]{"<<m_project<<"}"<<std::endl;
-  if(graphs.size()>12) Ncolums = 5; else Ncolums = 4;
+  if(make_tex) latexf << "\\begin{frame}[plain]{"<<title<<"}"<<std::endl;
+  if(graphs.size()>12) Ncolums = 5; else if(graphs.size()>7) Ncolums = 4; else Ncolums = 3;
   get_p_values();
   for( auto grs : graphs ) {
+    if(grs.first.name=="likelihood_p_value") continue;
     make_plot(grs.first /* label */,grs.second /* vector of TGraphErrors */);
   }
 
+  int i = 0;
   for( auto cor : correlation ) {
-    make_correlation( cor );
+    make_correlation( cor , TrendDataImpl::get_correlation_exp().at(i) );
+    ++i;
   }
+  if(make_tex) latexf << "\\tiny{" <<comments <<" }"<<std::endl;
   if(make_tex) latexf << "\\end{frame}"<<std::endl;
-  if(make_tex) latexf << "\\begin{frame}[plain]"<<std::endl;
-  make_legend();
-  if(make_tex) latexf << "\\end{frame}"<<std::endl;
+  //if(make_tex) latexf << "\\begin{frame}[plain]"<<std::endl;
+  //make_legend();
+  //if(make_tex) latexf << "\\end{frame}"<<std::endl;
   if(make_tex) latexf.close();
 }
 void TrendMakerImpl::get_p_values() {
@@ -165,7 +169,9 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
 //    std::cout<<std::string(legend).replace(legend.find("cpd"),3,"Bq")<<std::endl;
     return draw_on_pad(name,std::string(legend).replace(legend.find("cpd"),3,"Bq"),gr_new);
   }
-  gr = new TGraphErrors(gr->GetN()-1,gr->GetX(),gr->GetY(),gr->GetEX(),gr->GetEY());
+  TGraphErrors *gr_origin = gr;
+  gr = new TGraphErrors(gr_origin->GetN()-1,gr_origin->GetX(),gr_origin->GetY(),gr_origin->GetEX(),gr_origin->GetEY());
+  gr->SetTitle(gr_origin->GetTitle());
   if(gPad->GetListOfPrimitives()->GetSize()) gr->Draw("L3"); else {
     gr->Draw("AL3");
     gr->GetXaxis()->SetTitle(m_var.c_str());
@@ -218,7 +224,7 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
 }
 double TrendMakerImpl::xmin() const { return datas.front()->xmin(); }
 double TrendMakerImpl::xmax() const { return datas.front()->xmax(); }
-void TrendMakerImpl::make_correlation(TH1 *h_corr) {
+void TrendMakerImpl::make_correlation(TH1 *h_corr,double cor_exp) {
   std::string name(h_corr->GetName()),legend(h_corr->GetTitle());
   if(make_tex) latexf<<"\\includegraphics[width="<<0.999/Ncolums<<"\\textwidth]{"<<m_project<<"_"<<name<<"_cc}"<<std::endl;
   if(make_tex&&!(((latex_j++)+1)%Ncolums)) latexf<<"\\\\"<<std::endl;
@@ -229,6 +235,14 @@ void TrendMakerImpl::make_correlation(TH1 *h_corr) {
   h_corr->SetFillColorAlpha(kBlue,0.9);
   h_corr->SetLineColor(kBlue);
   h_corr->SetFillStyle(1003);
+
+  gPad->Modified();
+  gPad->Update();
+  TPave *expected_cor = new TPave(cor_exp-0.05,gPad->GetUymin(),cor_exp+0.05,gPad->GetUymax(),0,"br");
+  expected_cor->SetFillColorAlpha(kGreen,0.5);
+  expected_cor->SetFillStyle(1003);
+  expected_cor->SetLineWidth(2);
+  expected_cor->Draw();
 
   TIter next(gPad->GetListOfPrimitives());
   TObject *obj;
