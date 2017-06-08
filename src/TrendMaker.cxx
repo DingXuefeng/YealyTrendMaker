@@ -163,6 +163,7 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
 //    std::cout<<std::string(legend).replace(legend.find("cpd"),3,"Bq")<<std::endl;
     return draw_on_pad(name,std::string(legend).replace(legend.find("cpd"),3,"Bq"),gr_new);
   }
+  gr = new TGraphErrors(gr->GetN()-1,gr->GetX(),gr->GetY(),gr->GetEX(),gr->GetEY());
   if(gPad->GetListOfPrimitives()->GetSize()) gr->Draw("L3"); else {
     gr->Draw("AL3");
     gr->GetXaxis()->SetTitle(m_var.c_str());
