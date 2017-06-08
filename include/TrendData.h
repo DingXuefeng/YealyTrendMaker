@@ -45,6 +45,7 @@ class TrendDataImpl : public TrendData {
     double xmax() const { return *std::max_element(label_vars.begin(),label_vars.end()); }
     static std::map<std::string,double> &get_config_ymin() { return config_ymin; }
     static std::map<std::string,double> &get_config_ymax() { return config_ymax; }
+    static const std::string &pretty_name(const std::string &name) { return names.at(name); }
   private:
     void make_graphs();
     bool next(double &label_var,std::string &file_path) const;

@@ -102,10 +102,12 @@ TGraphErrors *TrendMakerImpl::weighted(std::vector<TGraphErrors*> &grs) {
     double p_sum = 0;
     int i = 0;
     for( auto gr: grs ) {
-      if(gr->GetEY()[j]*p_values.at(i)[j] == 0) continue; // fixed
-      sum += gr->GetY()[j]*p_values.at(i)[j]; // j: year
-      e_sum += gr->GetEY()[j]*p_values.at(i)[j]; // j: year
-      p_sum += p_values.at(i)[j]; // i: datasets
+//      if(gr->GetEY()[j]*p_values.at(i)[j] == 0) continue; // fixed
+      if(gr->GetEY()[j] == 0) continue; // fixed
+      double weight = pow(gr->GetEY()[j],-2);
+      sum += gr->GetY()[j]*weight; // j: year
+      e_sum += gr->GetEY()[j]*weight; // j: year
+      p_sum += weight; // i: datasets
       ++i;
     }
     y.push_back(sum/p_sum);
@@ -134,7 +136,7 @@ void TrendMakerImpl::fill_correlations() {
   for(auto cor : TrendDataImpl::get_correlation_items()) {
     const std::string &var1(cor.first);
     const std::string &var2(cor.second);
-    TH1D *h_corr = new TH1D((var1+"_"+var2).c_str(),(var1+" "+var2).c_str(),20,-1,1);
+    TH1D *h_corr = new TH1D((var1+"_"+var2).c_str(),(TrendDataImpl::pretty_name(var1)+" "+TrendDataImpl::pretty_name(var2)).c_str(),20,-1,1);
     for( auto data : datas ) {
       if(data->is_corrvar_fixed().at(i)) 
         h_corr->Fill(data->get_correlations().at(i));
@@ -170,6 +172,7 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
     gr->GetXaxis()->SetNdivisions(505);
     gr->GetXaxis()->SetNoExponent();
     gr->GetYaxis()->SetTitle(legend.c_str());
+    gr->GetXaxis()->SetRangeUser(2011.5,2017.5);
 //    if(name=="Kr85_rate") gr->GetYaxis()->SetRangeUser(-5,20);
 //    if(name=="Bi210_rate") { gr->GetYaxis()->SetRangeUser(0,35); }
 //    if(name=="likelihood_p_value") { gr->GetYaxis()->SetRangeUser(0,1); }
@@ -223,6 +226,9 @@ void TrendMakerImpl::make_correlation(TH1 *h_corr) {
   h_corr->Draw();
   h_corr->GetXaxis()->SetTitle("correlation");
   h_corr->GetYaxis()->SetTitle("Entries");
+  h_corr->SetFillColorAlpha(kBlue,0.9);
+  h_corr->SetLineColor(kBlue);
+  h_corr->SetFillStyle(1003);
 
   TIter next(gPad->GetListOfPrimitives());
   TObject *obj;
