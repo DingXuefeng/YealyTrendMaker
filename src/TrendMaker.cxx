@@ -2,6 +2,7 @@
 #include <iostream>
 //#include "Factory.h"
 #include "TLegend.h"
+#include "TFile.h"
 #include "TChain.h"
 #include "TROOT.h"
 #include "TGraphErrors.h"
@@ -26,6 +27,7 @@ void TrendMakerImpl::make_plots(bool skip_lowp_) {
   skip_lowp = skip_lowp_;
   if(m_out=="") m_out=".";
   if(!graphs.size()) gather_graphs();
+  TFile *file = TFile::Open((m_out+"/plots_"+m_project+"_"+m_var+".root").c_str(),"RECREATE");
   if(make_tex) latexf.open(m_out+"/trend_"+m_project+"_"+m_var+".tex");
   if(make_tex) latexf << "\\begin{frame}[plain]{"<<title<<"}"<<std::endl;
   if(graphs.size()>12) Ncolums = 5; else if(graphs.size()>7) Ncolums = 4; else Ncolums = 3;
@@ -46,6 +48,7 @@ void TrendMakerImpl::make_plots(bool skip_lowp_) {
   //make_legend();
   //if(make_tex) latexf << "\\end{frame}"<<std::endl;
   if(make_tex) latexf.close();
+  file->Close();
 }
 void TrendMakerImpl::get_p_values() {
   for ( auto ggr : graphs ) { /* std::map<Label,std::vector<TGraphErrors*> > graphs; */
@@ -96,6 +99,7 @@ void TrendMakerImpl::make_plot(const Label &label,std::vector<TGraphErrors *> gr
   tlegend = (TLegend*)(tlegend_tmp->Clone());
   gPad->GetListOfPrimitives()->Remove((TObject*)tlegend_tmp);
   cc->Print((m_out+"/"+m_project+"_"+name+"_cc.pdf").c_str());
+  cc->Write();
 }
 TGraphErrors *TrendMakerImpl::weighted(std::vector<TGraphErrors*> &grs) {
   std::vector<double> y,ey;
@@ -171,6 +175,7 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
   }
   TGraphErrors *gr_origin = gr;
   gr = new TGraphErrors(gr_origin->GetN()-1,gr_origin->GetX(),gr_origin->GetY(),gr_origin->GetEX(),gr_origin->GetEY());
+  gr->SetName(gr_origin->GetName());
   gr->SetTitle(gr_origin->GetTitle());
   if(gPad->GetListOfPrimitives()->GetSize()) gr->Draw("L3"); else {
     gr->Draw("AL3");
@@ -203,7 +208,18 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
   la->SetTextSize(0.1);
   la->DrawLatex(0.2,0.838,legend.c_str());
   Int_t i = NextPaletteColor(color++,Ncolors);
+  double fraction = (color/3)*1./(Ncolors/3)/2+0.5;
+  TColor *color_obj = gROOT->GetColor(i);
+  if(color%3==0) {
+    color_obj->SetRGB(fraction, 0.2, 0.2);
+  } else if(color%3==1) {
+    color_obj->SetRGB(0.2, fraction, 0.2);
+  } else if(color%3==2) {
+    color_obj->SetRGB(0.2, 0.2, fraction);
+  }
+//  std::cout<<gr->GetName()<<" ["<<gr->GetTitle()<<"] "<<(color%3)<<std::endl;
   double alpha = (dataset_i==p_values.size())?1:(p_values.at(dataset_i)[gr->GetN()-1]);
+  if(alpha>0.05) alpha = 0.3;
   gr->SetLineColorAlpha(i,alpha);
   gr->SetMarkerColorAlpha(i,alpha);
   gr->SetFillColorAlpha(i,alpha);
@@ -259,6 +275,7 @@ void TrendMakerImpl::make_correlation(TH1 *h_corr,double cor_exp) {
   la->DrawLatex(0.2,0.838,legend.c_str());
 
   cc->Print((m_out+"/"+m_project+"_"+name+"_cc.pdf").c_str());
+  cc->Write();
 }
 void TrendMakerImpl::make_legend() {
   std::string name("legend"),legend("legend");
@@ -273,4 +290,5 @@ void TrendMakerImpl::make_legend() {
   tlegend->SetX2(0.99);
   tlegend->SetY2(0.99);
   cc->Print((m_out+"/"+m_project+"_"+name+"_cc.pdf").c_str());
+  cc->Write();
 }
