@@ -208,18 +208,32 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
   la->SetTextSize(0.1);
   la->DrawLatex(0.2,0.838,legend.c_str());
   Int_t i = NextPaletteColor(color++,Ncolors);
-  double fraction = (color/3)*1./(Ncolors/3)/2+0.5;
-  TColor *color_obj = gROOT->GetColor(i);
-  if(color%3==0) {
-    color_obj->SetRGB(fraction, 0.2, 0.2);
-  } else if(color%3==1) {
-    color_obj->SetRGB(0.2, fraction, 0.2);
-  } else if(color%3==2) {
-    color_obj->SetRGB(0.2, 0.2, fraction);
-  }
-//  std::cout<<gr->GetName()<<" ["<<gr->GetTitle()<<"] "<<(color%3)<<std::endl;
   double alpha = (dataset_i==p_values.size())?1:(p_values.at(dataset_i)[gr->GetN()-1]);
   if(alpha>0.05) alpha = 0.3;
+
+  double fraction = (color/3)*1./(Ncolors/3)/2+0.5;
+  TColor *color_obj = gROOT->GetColor(i);
+
+  if(skip_lowp) {
+    bool North = (std::string(gr->GetName()).find("pepN")!=std::string::npos);
+    if(North)
+      color_obj->SetRGB(fraction, 0.2, 0.2);
+    else
+      color_obj->SetRGB(0.2,fraction,fraction);
+    alpha=0.05;
+    std::cout<<gr->GetName()<<" ["<<gr->GetTitle()<<"] "<<North<<std::endl;
+  } else {
+    if(std::string(gr->GetName()).find("geo")!=std::string::npos) {
+      color_obj->SetRGB(0.2, fraction, 0.2);
+      std::cout<<gr->GetName()<<" ["<<gr->GetTitle()<<"] G"<<std::endl;
+    } else if(std::string(gr->GetName()).find("zcorr")!=std::string::npos) {
+      color_obj->SetRGB(0.2, 0.2, fraction);
+      std::cout<<gr->GetName()<<" ["<<gr->GetTitle()<<"] B"<<std::endl;
+    } else {
+      color_obj->SetRGB(fraction, 0.2, 0.2);
+      std::cout<<gr->GetName()<<" ["<<gr->GetTitle()<<"] R"<<std::endl;
+    }
+  }
   gr->SetLineColorAlpha(i,alpha);
   gr->SetMarkerColorAlpha(i,alpha);
   gr->SetFillColorAlpha(i,alpha);

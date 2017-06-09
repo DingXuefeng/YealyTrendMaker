@@ -60,32 +60,76 @@ function pick {
   run $name $list 
   ./main task_list
 }
+rm report/*.pdf
+rm report/trend*.tex
+
 skip=0
 title="pep FV, w/ \& w/o $^{85}\$Kr penalty, w/ \& w/o fix LY/$\\nu\$(\$^{7}\$Be)"; 
-comments="144 fits performed under different conditions: w/ or w/o $^{85}\$Kr penalty, w/ or w/o fix LY/$\\nu\$(\$^{7}\$Be), w/ (140-1500) or w/o externals (140-650), w/ or w/o complementary, using charge/charge-geo/charge-z variable. The correlation are filled in the histogram, and the expected correlation from MC-MC tests are drawn as green band. As we can see the correlation between \$^{210}\$Bi and \$^{85}\$Kr are stronger than expected. We will explain it in the next slides. Besides, the \$^{210}\$Bi and the light yield are expected to be strongly anti-correlated while actually we see positive-correlations, so the trend of \$^{210}\$Bi and light yield are not statistical fluctuations. The \$^{210}\$Bi is really decreasing. The red dot is the weighted sum with the inverser of the square of uncertainty" 
+comments="R-charge;G-charge-geo;B-charge-zcorr;144 fits performed under different conditions: w/ or w/o $^{85}\$Kr penalty, w/ or w/o fix LY/$\\nu\$(\$^{7}\$Be), w/ (140-1500) or w/o externals (140-650), w/ or w/o complementary, using charge/charge-geo/charge-z variable. The correlation are filled in the histogram, and the expected correlation from MC-MC tests are drawn as green band. As we can see the correlation between \$^{210}\$Bi and \$^{85}\$Kr are stronger than expected. We will explain it in the next slides. Besides, the \$^{210}\$Bi and the light yield are expected to be strongly anti-correlated while actually we see positive-correlations, so the trend of \$^{210}\$Bi and light yield are not statistical fluctuations. The \$^{210}\$Bi is really decreasing. The red dot is the weighted sum with the inverser of the square of uncertainty" 
 pick pep "pep-"
+
 title="pep FV, w/ $^{85}\$Kr penalty, free light yield"; 
-comments="Look at the case w/ $^{85}\$Kr penalty and free LY. Now the correlation between \$^{210}\$Bi and \$^{85}\$Kr are as expected from toyMC correlation tests. The \$^{85}\$Kr are constrained, and the residual correlation with \$^{210}\$Bi over years are fully statistical."
+comments="R-charge;G-charge-geo;B-charge-zcorr;Look at the case w/ $^{85}\$Kr penalty and free LY. Now the correlation between \$^{210}\$Bi and \$^{85}\$Kr are as expected from toyMC correlation tests. The \$^{85}\$Kr are constrained, and the residual correlation with \$^{210}\$Bi over years are fully statistical."
 pick pepKrfreeLY "-free-.*-Kr.*pep-"
-title="pep FV, w/ $^{85}$ penalty, free light yield 1500"; 
-comments=""
-pick pepKrfreeLY1500 "-free-.*1500.*-Kr.*pep-nocomp"
-title="pep FV, w/ $^{85}$ penalty, free light yield 650"; 
-comments=""
-pick pepKrfreeLY650 "-free-.*650.*-Kr.*pep-comp"
-title="pep FV, w/ $^{85}$ penalty, free light yield nocomp"; 
-comments=""
-pick pepKrfreeLYnocomp "-free-.*-Kr.*pep-nocomp"
-title="pep FV, w/ $^{85}$ penalty, free light yield comp"; 
-comments=""
-pick pepKrfreeLYcomp "-free-.*-Kr.*pep-comp"
+
+title="pep FV, w/ $^{85}\$Kr penalty, fix light yield"; 
+comments="R-charge;G-charge-geo;B-charge-zcorr;Look at the case w/ $^{85}\$Kr penalty and fix LY. Now the correlation between \$^{210}\$Bi and \$^{85}\$Kr are as expected from toyMC correlation tests. The \$^{85}\$Kr are constrained, and the residual correlation with \$^{210}\$Bi over years are fully statistical."
+pick pepKrfixLY "-fixLY-.*-Kr.*pep-"
+
 title="pep FV, w/o $^{85}$ penalty, free light yield"; 
-comments="When we remove the \$^{85}\$Kr penalty, the \$^{85}\$Kr start to increase and the correlation between \$^{210}\$Bi and \$^{85}\$Kr are stronger than expected. Because we have no independent sensitivity on \$^{85}\$Kr, this is still statistical correlation. So we can draw the conclusion that the detector response is not modeled well and \$^{210}\$Bi is pushed away from the physical minimum, and thus the correlation becomes stronger.\\
+comments="R-charge;G-charge-geo;B-charge-zcorr;When we remove the \$^{85}\$Kr penalty, the \$^{85}\$Kr start to increase and the correlation between \$^{210}\$Bi and \$^{85}\$Kr are stronger than expected. Because we have no independent sensitivity on \$^{85}\$Kr, this is still statistical correlation. So we can draw the conclusion that the detector response is not modeled well and \$^{210}\$Bi is pushed away from the physical minimum, and thus the correlation becomes stronger.\\
 At the same time, let's look at the correlation between LY and \$^{210}\$Bi. Because we have sensitivity on both of them, such large positive correlation indicate there is real physics going on and the \$^{210}\$Bi decrease and LY decrease could be real."
 pick pepnoKrfreeLY "-free-.*noKr.*pep-"
+
 title="pep FV, w/o $^{85}$ penalty, fixed light yield"; 
-comments="Now let's fix the light yield. We can see that the correlation between \$^{85}\$Kr and \$^{210}\$ becomes even stronger comapred with the LY free cases. We can draw the same conclusion that the modeling is even worse. Actually according to the correlation plot, the more the LY decreases, the less \$^{210}\$Bi decrease there is. 2\% decrease in LY will stop \$^{210}\$Bi from decreasing. When LY free, it decreases by 1\%, while in MC the LY increases by 0.5\%. So this suggests the \$^{210}\$Bi decrease seen by MC fit might be too strong due to bad modeling of the temporal dependence of energy scale at the \$^{210}\$Bi valley."
+comments="R-charge;G-charge-geo;B-charge-zcorr;Now let's fix the light yield. We can see that the correlation between \$^{85}\$Kr and \$^{210}\$ becomes even stronger comapred with the LY free cases. We can draw the same conclusion that the modeling is even worse. Actually according to the correlation plot, the more the LY decreases, the less \$^{210}\$Bi decrease there is. 2\% decrease in LY will stop \$^{210}\$Bi from decreasing. When LY free, it decreases by 1\%, while in MC the LY increases by 0.5\%. So this suggests the \$^{210}\$Bi decrease seen by MC fit might be too strong due to bad modeling of the temporal dependence of energy scale at the \$^{210}\$Bi valley."
 pick pepnoKrfixLY "fixLY.*noKr.*pep-"
+
+skip=1
+title="pep-north or pep-south, w/ \& w/o $^{85}\$Kr penalty, w/ \& w/o fix LY/$\\nu\$(\$^{7}\$Be)"; 
+comments="pep-N vs pep-S, red vs cyan"
+pick pepNS "pepN-" "pepS-"
+
+skip=0
+
+title="pep north, w/ $^{85}\$Kr penalty, free light yield"; 
+comments="R-charge;G-charge-geo;B-charge-zcorr;"
+pick pepNKrfreeLY "-free-.*-Kr.*pepN-"
+
+title="pep north, w/ $^{85}\$Kr penalty, fix light yield"; 
+comments="R-charge;G-charge-geo;B-charge-zcorr;"
+pick pepNKrfixLY "-fixLY-.*-Kr.*pepN-"
+
+title="pep north, w/o $^{85}$ penalty, free light yield"; 
+comments="R-charge;G-charge-geo;B-charge-zcorr;"
+pick pepNnoKrfreeLY "-free-.*noKr.*pepN-"
+
+title="pep north, w/o $^{85}$ penalty, fixed light yield"; 
+comments="R-charge;G-charge-geo;B-charge-zcorr;"
+pick pepNnoKrfixLY "fixLY.*noKr.*pepN-"
+
+title="pep south, w/ $^{85}\$Kr penalty, free light yield"; 
+comments="R-charge;G-charge-geo;B-charge-zcorr;"
+pick pepSKrfreeLY "-free-.*-Kr.*pepS-"
+
+title="pep south, w/ $^{85}\$Kr penalty, fix light yield"; 
+comments="R-charge;G-charge-geo;B-charge-zcorr;"
+pick pepSKrfixLY "-fixLY-.*-Kr.*pepS-"
+
+title="pep south, w/o $^{85}$ penalty, free light yield"; 
+comments="R-charge;G-charge-geo;B-charge-zcorr;"
+pick pepSnoKrfreeLY "-free-.*noKr.*pepS-"
+
+title="pep south, w/o $^{85}$ penalty, fixed light yield"; 
+comments="R-charge;G-charge-geo;B-charge-zcorr;"
+pick pepSnoKrfixLY "fixLY.*noKr.*pepS-"
+
+#title="pep FV, w/ $^{85}$ penalty, free light yield 1500"; 
+#comments="R-charge;G-charge-geo;B-charge-zcorr;"
+#pick pepKrfreeLY1500 "-free-.*1500.*-Kr.*pep-nocomp"
+#title="pep FV, w/ $^{85}$ penalty, free light yield 650"; 
+#comments="R-charge;G-charge-geo;B-charge-zcorr;"
+#pick pepKrfreeLY650 "-free-.*650.*-Kr.*pep-comp"
 #pick pepKr "-Kr.*pep-"
 #pick pepKrfreeLY "-free-.*-Kr.*pep" "fixpep.*-Kr.*pep-"
 #pick pepnoKr "noKr.*pep-"
