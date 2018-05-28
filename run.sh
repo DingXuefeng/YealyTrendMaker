@@ -18,7 +18,8 @@ var="year"
 #project=krossi_fitter2
 #project=krossi_fixg1g2g3_krossi_input
 #project=krossi_hisconfig_hisinput
-project=krossi_hisconfig_official_input
+#project=krossi_hisconfig_official_input
+project=SimulMLPFit
 #files="data/${project}/filelist"
 #files="../yearly/%d_result.root"
 #files="data/with_vped/%d_result.root"
@@ -52,9 +53,11 @@ function pick {
   rm task_list
   for x in {1..216}; do
     y=`ls data | grep ^${x}-`
-    if [[ ! -f data/${y}/2012/2012_result.root ]]; then continue; fi
+    if [[ -z $y ]]; then continue; fi
+    #if [[ ! -f data/${y}/2012/2012_result.root ]]; then continue; fi
     if [[ $y =~ $keyword ]] || [[ $y =~ $keyword_extra ]]; then 
       add $y $list
+      echo "add <$y> <$list>"
     fi
   done
   run $name $list 
@@ -85,10 +88,15 @@ rm report/trend*.tex
 #comments="R-charge;G-charge-geo;B-charge-zcorr;Now let's fix the light yield. We can see that the correlation between \$^{85}\$Kr and \$^{210}\$ becomes even stronger comapred with the LY free cases. We can draw the same conclusion that the modeling is even worse. Actually according to the correlation plot, the more the LY decreases, the less \$^{210}\$Bi decrease there is. 2\% decrease in LY will stop \$^{210}\$Bi from decreasing. When LY free, it decreases by 1\%, while in MC the LY increases by 0.5\%. So this suggests the \$^{210}\$Bi decrease seen by MC fit might be too strong due to bad modeling of the temporal dependence of energy scale at the \$^{210}\$Bi valley."
 #pick pepnoKrfixLY "fixLY.*noKr.*pep-"
 
-skip=1
-title="pep-north or pep-south, w/ \& w/o $^{85}\$Kr penalty, w/ \& w/o fix LY/$\\nu\$(\$^{7}\$Be)"; 
-comments="pep-N vs pep-S, red vs cyan"
-pick pepNS "free-.*-Krpen-pepN-" "free-.*-Krpen-pepS-"
+#skip=1
+#title="pep-north or pep-south, w/ \& w/o $^{85}\$Kr penalty, w/ \& w/o fix LY/$\\nu\$(\$^{7}\$Be)"; 
+#comments="pep-N vs pep-S, red vs cyan"
+#pick pepNS "free-.*-Krpen-pepN-" "free-.*-Krpen-pepS-"
+
+skip=0
+title="Simultaneous fitting pepFV MLP fit Bi210 constrained";
+comments="160-1500, Bi210 constrained to 17.43\$\\pm\$0.97 cpd/100t"
+pick MLP ".*"
 
 #skip=0
 #

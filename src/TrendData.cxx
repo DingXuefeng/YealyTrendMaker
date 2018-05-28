@@ -98,6 +98,7 @@ void TrendDataImpl::make_graphs() {
     x.push_back(label_var);
     ex.push_back(0);
   }
+  assert(tree->GetEntries());
 
   std::map<std::string,double> var_holder,evar_holder;
   std::map<std::string,std::vector<double> > y,ey;

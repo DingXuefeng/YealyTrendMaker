@@ -32,7 +32,7 @@ class TrendDataImpl : public TrendData {
     TrendDataImpl(const std::string &var);
     static void regRate(const std::string &var,const std::string &name,double min_ = 0,double max_ = 0) ;
     static void reg(const std::string &var,const std::string &name,double min_ = 0,double max_ = 0) ;
-    static void regArray(const std::string &var,const std::string &name1,const std::string &name2,const std::string &name3="",const std::string &name4="",const std::string &name5="",const std::string &name6="") ;
+    static void regArray(const std::string &var,const std::string &name1,const std::string &name2="",const std::string &name3="",const std::string &name4="",const std::string &name5="",const std::string &name6="") ;
     static void regArray_min(const std::string & var,double min1=0,double min2=0,double min3=0,double min4=0,double min5=0,double min6=0) ;
     static void regArray_max(const std::string & var,double max1=0,double max2=0,double max3=0,double max4=0,double max5=0,double max6=0) ;
     static void regCorrelation(const std::string & var1,const std::string &var2,double exp_cor);
