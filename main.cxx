@@ -43,10 +43,11 @@ void config_POI() { // paramters of interests
   //TrendDataImpl::reg("chi2_ndf","#chi^{2} / NDF",0.5,2);
   TrendDataImpl::reg("beta_ly","LY (p.e./MeV)",460,560);
   TrendDataImpl::reg("nu_Be7_rate","#nu ^{7}Be (cpd/100t)",35,60);
+//  TrendDataImpl::reg("nu_CNO_rate","#nu CNO (cpd/100t)",0,40);
 //  TrendDataImpl::reg("nu_pp_rate","#nu pp (cpd/100t)");
   TrendDataImpl::reg("Bi210_rate","^{210}Bi (cpd/100t)",0,40);
   TrendDataImpl::reg("Kr85_rate","^{85}Kr (cpd/100t)",0,30);
- // TrendDataImpl::reg("Po210_rate","^{210}Po (cpd/100t)");
+  TrendDataImpl::reg("Po210_rate","^{210}Po (cpd/100t)",0,100);
 //  TrendDataImpl::reg("Po210_quenching","^{210}Po qch (cpd/100t)",0.07,0.085);
 //  TrendDataImpl::reg("C14_rate","^{14}C (cpd/100t)");
 //  TrendDataImpl::reg("synthpup_rate","synthpup (cpd/100t)");
@@ -59,11 +60,11 @@ void config_POI() { // paramters of interests
   //TrendDataImpl::regArray("beta_resolution","g1","g2","g3");
   //TrendDataImpl::regArray_min("beta_resolution",1,0,0);
   //TrendDataImpl::regArray_max("beta_resolution",2,6,3);
-  TrendDataImpl::regCorrelation("Kr85_rate","Bi210_rate",-0.57);
+//  TrendDataImpl::regCorrelation("Kr85_rate","Bi210_rate",-0.57);
   //TrendDataImpl::regCorrelation("C11_quenching","Bi210_rate");
   //TrendDataImpl::regCorrelation("Po210_quenching","Bi210_rate");
   //TrendDataImpl::regCorrelation("nu_Be7_rate","Bi210_rate");
-  TrendDataImpl::regCorrelation("beta_ly","Bi210_rate",-0.71);
+ // TrendDataImpl::regCorrelation("beta_ly","Bi210_rate",-0.71);
   //TrendDataImpl::regCorrelation("Ext_K40_rate","Bi210_rate");
   //TrendDataImpl::regCorrelation("Kr85_rate","nu_Be7_rate");
   //TrendDataImpl::regCorrelation("C11_quenching","beta_ly");

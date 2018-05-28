@@ -33,7 +33,7 @@ void TrendMakerImpl::make_plots(bool skip_lowp_) {
   if(graphs.size()>12) Ncolums = 5; else if(graphs.size()>7) Ncolums = 4; else Ncolums = 3;
   get_p_values();
   for( auto grs : graphs ) {
-    if(grs.first.name=="likelihood_p_value") continue;
+//    if(grs.first.name=="likelihood_p_value") continue;
     make_plot(grs.first /* label */,grs.second /* vector of TGraphErrors */);
   }
 
@@ -89,12 +89,12 @@ void TrendMakerImpl::make_plot(const Label &label,std::vector<TGraphErrors *> gr
     draw_on_pad(name,legend,gr);
     ++dataset_i;
   }
-  TGraphErrors *weighted_gr = draw_on_pad(name,legend,weighted(grs));
-  weighted_gr->SetMarkerColor(kRed);
-  weighted_gr->SetLineColor(kRed);
-  weighted_gr->SetLineWidth(4);
-  weighted_gr->SetMarkerStyle(20);
-  weighted_gr->SetDrawOption("P");
+//  TGraphErrors *weighted_gr = draw_on_pad(name,legend,weighted(grs));
+//  weighted_gr->SetMarkerColor(kRed);
+//  weighted_gr->SetLineColor(kRed);
+//  weighted_gr->SetLineWidth(4);
+//  weighted_gr->SetMarkerStyle(20);
+//  weighted_gr->SetDrawOption("P");
   TLegend *tlegend_tmp = gPad->BuildLegend();
   tlegend = (TLegend*)(tlegend_tmp->Clone());
   gPad->GetListOfPrimitives()->Remove((TObject*)tlegend_tmp);
@@ -174,7 +174,7 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
     return draw_on_pad(name,std::string(legend).replace(legend.find("cpd"),3,"Bq"),gr_new);
   }
   TGraphErrors *gr_origin = gr;
-  gr = new TGraphErrors(gr_origin->GetN()-1,gr_origin->GetX(),gr_origin->GetY(),gr_origin->GetEX(),gr_origin->GetEY());
+  gr = new TGraphErrors(gr_origin->GetN(),gr_origin->GetX(),gr_origin->GetY(),gr_origin->GetEX(),gr_origin->GetEY());
   gr->SetName(gr_origin->GetName());
   gr->SetTitle(gr_origin->GetTitle());
   if(gPad->GetListOfPrimitives()->GetSize()) gr->Draw("L3"); else {
@@ -215,6 +215,7 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
   TColor *color_obj = gROOT->GetColor(i);
 
   if(skip_lowp) {
+    fraction = 0.9;
     bool North = (std::string(gr->GetName()).find("pepN")!=std::string::npos);
     if(North)
       color_obj->SetRGB(fraction, 0.2, 0.2);
@@ -237,6 +238,8 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
   gr->SetLineColorAlpha(i,alpha);
   gr->SetMarkerColorAlpha(i,alpha);
   gr->SetFillColorAlpha(i,alpha);
+  gr->SetLineColor(i);
+  gr->SetLineWidth(2);
   gr->SetFillStyle(1001);
   //gr->SetFillStyle(3144);
   gr->SetMarkerColor(i);
