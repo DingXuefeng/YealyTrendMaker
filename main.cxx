@@ -39,7 +39,7 @@ int main(int argc,char *argv[]) {
   return 0;
 }
 void config_POI() { // paramters of interests
-//  TrendDataImpl::reg("likelihood_p_value","p-val",-0.1,1.1);
+  TrendDataImpl::reg("likelihood_p_value","p-val",-0.1,1.1);
   //TrendDataImpl::reg("chi2_ndf","#chi^{2} / NDF",0.5,2);
   TrendDataImpl::reg("beta_ly","LY (p.e./MeV)",505,515);
 //  TrendDataImpl::reg("nu_Be7_rate","#nu ^{7}Be (cpd/100t)",35,60);
@@ -60,9 +60,9 @@ void config_POI() { // paramters of interests
   //TrendDataImpl::regArray("beta_resolution","g1","g2","g3");
   //TrendDataImpl::regArray_min("beta_resolution",1,0,0);
   //TrendDataImpl::regArray_max("beta_resolution",2,6,3);
-  TrendDataImpl::regArray("beta_resolution","g1");
-  TrendDataImpl::regArray_min("beta_resolution",1);
-  TrendDataImpl::regArray_max("beta_resolution",2);
+//  TrendDataImpl::regArray("beta_resolution","g1");
+//  TrendDataImpl::regArray_min("beta_resolution",1);
+//  TrendDataImpl::regArray_max("beta_resolution",2);
   TrendDataImpl::regArray("mlp_corrections","#varepsilon_{#beta}","#lambda_{#beta}","#varepsilon_{#alpha}","#lambda_{#alpha}");
   TrendDataImpl::regArray_min("mlp_corrections",0,10,0,10);
   TrendDataImpl::regArray_max("mlp_corrections",1,100,1,100);
@@ -77,14 +77,14 @@ void config_POI() { // paramters of interests
 }
 void load_data(TrendMaker *maker,const std::string &input) {
   std::ifstream inputlists;
-  inputlists.open(input);
+  inputlists.open(input.c_str());
   while(true) {
     std::string filename,project;
     inputlists >> filename >> project;
     if(inputlists.fail()) break;
     TrendData *data = Factory<TrendData>::get()->create(project);
     std::ifstream inputlist;
-    inputlist.open(filename);
+    inputlist.open(filename.c_str());
     while(true) {
       int year;
       std::string file;

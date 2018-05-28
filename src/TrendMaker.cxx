@@ -28,7 +28,7 @@ void TrendMakerImpl::make_plots(bool skip_lowp_) {
   if(m_out=="") m_out=".";
   if(!graphs.size()) gather_graphs();
   TFile *file = TFile::Open((m_out+"/plots_"+m_project+"_"+m_var+".root").c_str(),"RECREATE");
-  if(make_tex) latexf.open(m_out+"/trend_"+m_project+"_"+m_var+".tex");
+  if(make_tex) latexf.open((m_out+"/trend_"+m_project+"_"+m_var+".tex").c_str());
   if(make_tex) latexf << "\\begin{frame}[plain]{"<<title<<"}"<<std::endl;
   if(graphs.size()>12) Ncolums = 5; else if(graphs.size()>7) Ncolums = 4; else Ncolums = 3;
   get_p_values();
@@ -78,7 +78,8 @@ void TrendMakerImpl::make_plot(const Label &label,std::vector<TGraphErrors *> gr
     gStyle->SetPadGridX(false); 
     gStyle->SetPadGridY(true); 
     gPad->SetGridy(true);
-    gStyle->SetPalette(kBlueYellow);
+    //gStyle->SetPalette(kBlueYellow);
+    gStyle->SetPalette(54);
     //gStyle->SetPalette(55);
     //gStyle->SetPalette(51);
     first = false; 
