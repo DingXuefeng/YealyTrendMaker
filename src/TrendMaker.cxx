@@ -209,7 +209,7 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
   la->SetTextSize(0.1);
   la->DrawLatex(0.2,0.838,legend.c_str());
   Int_t i = NextPaletteColor(color++,Ncolors);
-  double alpha = (dataset_i==p_values.size())?1:(p_values.at(dataset_i)[gr->GetN()-1]);
+  double alpha = (dataset_i==p_values.size() || p_values.size()==0)?1:(p_values.at(dataset_i)[gr->GetN()-1]);
   if(alpha>0.05) alpha = 0.3;
 
   double fraction = (color/3)*1./(Ncolors/3)/2+0.5;

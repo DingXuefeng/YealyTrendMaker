@@ -98,9 +98,14 @@ rm report/trend*.tex
 #comments="160-1500, Bi210 constrained to 17.43\$\\pm\$0.97 cpd/100t, Kr85 constrained to Sandra's result (LL penalty)"
 #pick MLP ".*"
 
+#skip=0
+#title="Comparison of LY"
+#comments="R: norm charge G: geo B: zcorr. 140-1500, Be7 fixed. pep constrained to 2.8\$\\pm\$0.28 cpd/100t, CNO constrained to 4.92\$\\pm\$0.56 cpd/100t, Kr85 constrained to Sandra's result (LL penalty)"
+#pick MLP ".*"
+
 skip=0
-title="Comparison of LY"
-comments="R: norm charge G: geo B: zcorr. 160-1500, Bi210 constrained to 17.43\$\\pm\$0.97 cpd/100t, Kr85 constrained to Sandra's result (LL penalty)"
+title="Bi210-Kr85 puzzle"
+comments="R: without Kr85 Valley (160-) G: with Kr85 Valley (140-) B: with Kr85 valley (140-) A1100 dataset -1500, Be7 fixed. pep constrained to 2.8\$\\pm\$0.28 cpd/100t, CNO constrained to 4.92\$\\pm\$0.56 cpd/100t, Kr85 free (LL penalty). Potential live time calculation problem for A1100"
 pick MLP ".*"
 
 #skip=0
