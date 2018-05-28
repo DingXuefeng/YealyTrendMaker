@@ -224,13 +224,13 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
     alpha=0.05;
     std::cout<<gr->GetName()<<" ["<<gr->GetTitle()<<"] "<<North<<std::endl;
   } else {
-    if(std::string(gr->GetName()).find("geo")!=std::string::npos) {
+    if(std::string(gr->GetName()).find("colorG")!=std::string::npos) {
       color_obj->SetRGB(0.2, fraction, 0.2);
       std::cout<<gr->GetName()<<" ["<<gr->GetTitle()<<"] G"<<std::endl;
-    } else if(std::string(gr->GetName()).find("zcorr")!=std::string::npos) {
+    } else if(std::string(gr->GetName()).find("colorB")!=std::string::npos) {
       color_obj->SetRGB(0.2, 0.2, fraction);
       std::cout<<gr->GetName()<<" ["<<gr->GetTitle()<<"] B"<<std::endl;
-    } else {
+    } else if(std::string(gr->GetName()).find("colorR")!=std::string::npos) {
       color_obj->SetRGB(fraction, 0.2, 0.2);
       std::cout<<gr->GetName()<<" ["<<gr->GetTitle()<<"] R"<<std::endl;
     }

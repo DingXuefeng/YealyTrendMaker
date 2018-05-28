@@ -119,8 +119,8 @@ sub setFitVar{
       replace_file('fittest.sh','HIST1','pp/z_correction/final_charge_pp_zcorr');
     }
     # buggy bx_nusol!!! will be fixed later
-    replace_file('fitoptions.cfg','NUSED1','pp/zcorrmetrical_correction/h_n_used_charge_pp_zcorr');
-    replace_file('fitoptions.cfg','NUSED2','pp/zcorrmetrical_correction/h_n_used_charge_weighted_zcorr');
+    replace_file('fitoptions.cfg','NUSED1','pp/z_correction/h_n_used_charge_pp_zcorr');
+    replace_file('fitoptions.cfg','NUSED2','pp/z_correction/h_n_used_charge_weighted_zcorr');
   }
 #  say "set fit var to [$var]";
 }

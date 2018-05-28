@@ -71,7 +71,7 @@ class TrendMakerImpl : public TrendMaker {
     bool make_tex;
     std::vector<std::string> vars;
     std::vector<double*> p_values;
-    int dataset_i;
+    size_t dataset_i;
     std::map<std::string,std::string> names;
     std::map<std::string,int> arrays;
     std::map<std::string,std::vector<std::string> > array_names;

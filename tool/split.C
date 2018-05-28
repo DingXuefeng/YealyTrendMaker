@@ -13,7 +13,7 @@
    //Create a new file + a clone of old tree in new file
 
    for (Int_t i=0;i<nentries; i++) {
-      TFile *newfile = new TFile(Form("%d.root",2014+i),"recreate");
+      TFile *newfile = new TFile(Form("%d.root",2012+i),"recreate");
       TTree *newtree = oldtree->CloneTree(0);
       oldtree->GetEntry(i);
       newtree->Fill();

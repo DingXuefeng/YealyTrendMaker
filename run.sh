@@ -93,9 +93,14 @@ rm report/trend*.tex
 #comments="pep-N vs pep-S, red vs cyan"
 #pick pepNS "free-.*-Krpen-pepN-" "free-.*-Krpen-pepS-"
 
+#skip=0
+#title="Simultaneous fitting pepFV MLP fit Bi210 constrained";
+#comments="160-1500, Bi210 constrained to 17.43\$\\pm\$0.97 cpd/100t, Kr85 constrained to Sandra's result (LL penalty)"
+#pick MLP ".*"
+
 skip=0
-title="Simultaneous fitting pepFV MLP fit Bi210 constrained";
-comments="160-1500, Bi210 constrained to 17.43\$\\pm\$0.97 cpd/100t"
+title="Comparison of LY"
+comments="R: norm charge G: geo B: zcorr. 160-1500, Bi210 constrained to 17.43\$\\pm\$0.97 cpd/100t, Kr85 constrained to Sandra's result (LL penalty)"
 pick MLP ".*"
 
 #skip=0
