@@ -30,5 +30,8 @@
 
 main
 *.dSYM
-report/*
-data/*
+report*
+data*
+list_*
+task_list
+.DS_Store

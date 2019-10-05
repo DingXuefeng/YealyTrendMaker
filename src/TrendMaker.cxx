@@ -178,13 +178,13 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
   gr = new TGraphErrors(gr_origin->GetN(),gr_origin->GetX(),gr_origin->GetY(),gr_origin->GetEX(),gr_origin->GetEY());
   gr->SetName(gr_origin->GetName());
   gr->SetTitle(gr_origin->GetTitle());
-  if(gPad->GetListOfPrimitives()->GetSize()) gr->Draw("L3"); else {
-    gr->Draw("AL3");
+  if(gPad->GetListOfPrimitives()->GetSize()) gr->Draw("PL3"); else {
+    gr->Draw("APL3");
     gr->GetXaxis()->SetTitle(m_var.c_str());
-    gr->GetXaxis()->SetNdivisions(505);
+    gr->GetXaxis()->SetNdivisions(108);
     gr->GetXaxis()->SetNoExponent();
     gr->GetYaxis()->SetTitle(legend.c_str());
-    gr->GetXaxis()->SetRangeUser(2011.5,2017.5);
+    gr->GetXaxis()->SetRangeUser(2011.5,2018.5);
 //    if(name=="Kr85_rate") gr->GetYaxis()->SetRangeUser(-5,20);
 //    if(name=="Bi210_rate") { gr->GetYaxis()->SetRangeUser(0,35); }
 //    if(name=="likelihood_p_value") { gr->GetYaxis()->SetRangeUser(0,1); }
@@ -217,7 +217,8 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
 
   if(skip_lowp) {
     fraction = 0.9;
-    bool North = (std::string(gr->GetName()).find("pepN")!=std::string::npos);
+    //bool North = (std::string(gr->GetName()).find("pepN")!=std::string::npos);
+    bool North = (std::string(gr->GetName()).find("-normal-")!=std::string::npos);
     if(North)
       color_obj->SetRGB(fraction, 0.2, 0.2);
     else
@@ -225,6 +226,7 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
     alpha=0.05;
     std::cout<<gr->GetName()<<" ["<<gr->GetTitle()<<"] "<<North<<std::endl;
   } else {
+    fraction = 1;
     if(std::string(gr->GetName()).find("colorG")!=std::string::npos) {
       color_obj->SetRGB(0.2, fraction, 0.2);
       std::cout<<gr->GetName()<<" ["<<gr->GetTitle()<<"] G"<<std::endl;
@@ -239,6 +241,7 @@ TGraphErrors *TrendMakerImpl::draw_on_pad(const std::string &name,const std::str
   gr->SetLineColorAlpha(i,alpha);
   gr->SetMarkerColorAlpha(i,alpha);
   gr->SetFillColorAlpha(i,alpha);
+  if((std::string(gr->GetName()).find("-Krpen-")!=std::string::npos)) gr->SetLineStyle(9);
   gr->SetLineColor(i);
   gr->SetLineWidth(2);
   gr->SetFillStyle(1001);

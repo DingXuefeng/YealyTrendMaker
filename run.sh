@@ -33,7 +33,7 @@ project=SimulMLPFit
 function add {
   project=$1
   list=$2
-  echo "data/${project}/example_filelist" $project >> $list
+  echo "data/${project}/filelist" $project >> $list
 }
 skip=1
 function run {
@@ -103,10 +103,45 @@ rm report/trend*.tex
 #comments="R: norm charge G: geo B: zcorr. 140-1500, Be7 fixed. pep constrained to 2.8\$\\pm\$0.28 cpd/100t, CNO constrained to 4.92\$\\pm\$0.56 cpd/100t, Kr85 constrained to Sandra's result (LL penalty)"
 #pick MLP ".*"
 
-skip=0
-title="Bi210-Kr85 puzzle"
-comments="R: without Kr85 Valley (160-) G: with Kr85 Valley (140-) B: with Kr85 valley (140-) A1100 dataset -1500, Be7 fixed. pep constrained to 2.8\$\\pm\$0.28 cpd/100t, CNO constrained to 4.92\$\\pm\$0.56 cpd/100t, Kr85 free (LL penalty). Potential live time calculation problem for A1100"
-pick MLP ".*"
+#skip=0
+#title="Bi210-Kr85 puzzle"
+#comments="R: without Kr85 Valley (160-) G: with Kr85 Valley (140-) B: with Kr85 valley (140-) A1100 dataset -1500, Be7 fixed. pep constrained to 2.8\$\\pm\$0.28 cpd/100t, CNO constrained to 4.92\$\\pm\$0.56 cpd/100t, Kr85 penalty (LL penalty)."
+#pick MLP ".*"
+
+#skip=0
+#title="Bi210-Kr85 puzzle, npmt"
+#comments="R: old input B: new input. [85-500], no TFC, npmt\_dt1 fit, pep/CNO fixed."
+#pick MLP ".*"
+
+#skip=0
+#title="\$^{210}\$Bi-\$^{85}\$Kr puzzle, charge, \$^{85}\$Kr constrained"
+#comments="R: norm charge G: geo B: zcorr [140-1500], pp/pep/CNO fixed. TFC fit. Likelihood based \$^{85}\$Kr penalty"
+#pick 2018Krcons -Krpen-
+
+#skip=0
+#title="\$^{210}\$Bi-\$^{85}\$Kr puzzle, charge, \$^{85}\$Kr free"
+#comments="R: norm charge G: geo B: zcorr [140-1500], pp/pep/CNO fixed. TFC fit"
+#pick 2018Krfree -noKrpen-
+
+#skip=1
+#title="\$^{210}\$Bi-\$^{85}\$Kr puzzle, charge, comparison between w/ and w/o \$^{85}\$Kr"
+#comments="Red: w/ penalty. Cyan: w/o penalty [140-1500], pp/pep/CNO fixed. TFC fit"
+#pick 2018Krcompare ".*"
+
+#skip=0
+#title="\$^{210}\$Bi-\$^{85}\$Kr puzzle, charge, new method"
+#comments="G: w/ valley, w/ penalty. [140-1500], pp/pep/CNO fixed. TFC fit"
+#pick 2018Krconsnew ".*"
+
+#skip=1
+#title="\$^{210}\$Bi-\$^{85}\$Kr puzzle, npmt, A1100 comparison"
+#comments="R: normal G: A1100. B: A1100+fixed RPF. Solid: \$^{85}\$Kr free. Dashed: \$^{85}\$Kr constrained. [85-500], pp/Be7/pep/CNO fixed. TFC fit."
+#pick 2018A1100 ".*"
+
+#skip=1
+#title="\$^{210}\$Bi-\$^{85}\$Kr puzzle, charge , A1100 comparison"
+#comments="Red: normal Cyan: A1100. Solid: \$^{85}\$Kr free. Dashed: \$^{85}\$Kr constrained. [140-1500], pp/pep/CNO fixed. TFC fit."
+#pick 2018A1100Q ".*"
 
 #skip=0
 #
@@ -191,3 +226,8 @@ pick MLP ".*"
 #pick selectPvaluepepSnoKrfixLY "fixLY.*noKr.*pepS"
 #pick selectPvaluepepSKrfreeLY "-free-.*-Kr.*pepS" "fixpep.*-Kr.*pepS"
 #pick selectPvaluepepSnoKrfreeLY "-free-.*noKr.*pepS" "fixpep.*-Kr.*pepS"
+
+skip=0
+title="MC fit, comp, 130-950, no pp/pileup, new PDF new input"
+comments="Red: normal Cyan: A1100. Solid: \$^{85}\$Kr free. Dashed: \$^{85}\$Kr constrained. [140-1500], pp/pep/CNO fixed. TFC fit."
+pick MCfit ".*" ".*"
