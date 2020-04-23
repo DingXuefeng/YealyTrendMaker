@@ -11,29 +11,12 @@ mkdir -p ${output} 2>/dev/null
 
 # var: x title
 var="year" 
-# output folder
-#project=without_Kr
-#project=krossi_fixg1g2g3
-#files="data/krossi_fixg1g2gg3/%d_result.root"
-#project=krossi_fitter2
-#project=krossi_fixg1g2g3_krossi_input
-#project=krossi_hisconfig_hisinput
-#project=krossi_hisconfig_official_input
 project=SimulMLPFit
-#files="data/${project}/filelist"
-#files="../yearly/%d_result.root"
-#files="data/with_vped/%d_result.root"
-#files="data/without_vped/%d_result.root"
-#files="data/without_vped/%d_result.root"
-
-# resample
-#var="job" 
-#project=resample
-#files="."
 function add {
   project=$1
   list=$2
   echo "data/${project}/filelist" $project >> $list
+  cp filelist data/${project}
 }
 skip=1
 function run {
@@ -51,10 +34,9 @@ function pick {
 
   rm $list
   rm task_list
-  for x in {1..216}; do
+  for x in {1..6}; do
     y=`ls data | grep ^${x}-`
     if [[ -z $y ]]; then continue; fi
-    #if [[ ! -f data/${y}/2012/2012_result.root ]]; then continue; fi
     if [[ $y =~ $keyword ]] || [[ $y =~ $keyword_extra ]]; then 
       add $y $list
       echo "add <$y> <$list>"
